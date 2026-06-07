@@ -56,7 +56,7 @@ struct MassSenderView: View {
 
                     HStack {
                         Image(systemName: "clock")
-                        Text("\(formatDate(task.triggerTime)) (\(task.repeatMode))")
+                        Text("\(formatDate(task.triggerTime)) | \(task.repeatMode)")
                     }
                     .font(.caption)
                     .foregroundColor(task.isActive ? .green : .gray)
@@ -100,8 +100,11 @@ struct AddTaskView: View {
     @State private var messageContent = ""
     @State private var triggerTime = Date()
     @State private var repeatMode = "单次"
+    @State private var customInterval = 5
+    @State private var intervalUnit = "分钟"
 
-    let repeatOptions = ["单次", "每天", "每周", "每月"]
+    let repeatOptions = ["单次", "自定义间隔", "每天", "每周", "每月"]
+    let intervalUnits = ["分钟", "小时"]
     @State private var selectedTargets = ["所有客户群", "VIP客户名单"]
 
     var body: some View {
@@ -132,9 +135,25 @@ struct AddTaskView: View {
 
                 Section(header: Text("触发与重复机制")) {
                     DatePicker("执行时间", selection: $triggerTime)
+
                     Picker("重复周期", selection: $repeatMode) {
                         ForEach(repeatOptions, id: \.self) { mode in
                             Text(mode).tag(mode)
+                        }
+                    }
+
+                    if repeatMode == "自定义间隔" {
+                        HStack {
+                            TextField("间隔", value: $customInterval, format: .number)
+                                .keyboardType(.numberPad)
+                                .frame(width: 60)
+                                .multilineTextAlignment(.center)
+                            Picker("单位", selection: $intervalUnit) {
+                                ForEach(intervalUnits, id: \.self) { unit in
+                                    Text(unit).tag(unit)
+                                }
+                            }
+                            .pickerStyle(.segmented)
                         }
                     }
                 }
@@ -149,17 +168,23 @@ struct AddTaskView: View {
     }
 
     private func saveTask() {
+        let finalRepeatMode: String
+        if repeatMode == "自定义间隔" {
+            finalRepeatMode = "每隔\(customInterval)\(intervalUnit)"
+        } else {
+            finalRepeatMode = repeatMode
+        }
+
         let newTask = MassSendTask(
             taskName: taskName,
             targetNames: selectedTargets,
             targetIds: ["mock_id_1", "mock_id_2"],
             messageContent: messageContent,
             triggerTime: triggerTime,
-            repeatMode: repeatMode
+            repeatMode: finalRepeatMode
         )
         modelContext.insert(newTask)
 
-        // 同步群发任务到云端服务器
         WebSocketManager.shared.syncMassTaskToServer(task: newTask)
 
         presentationMode.wrappedValue.dismiss()
