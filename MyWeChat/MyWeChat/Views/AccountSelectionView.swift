@@ -150,10 +150,10 @@ struct AccountSelectionView: View {
     private func loadAccounts() {
         accounts = StorageManager.shared.fetchAccounts()
         if accounts.isEmpty {
-            APIManager.shared.fetchAccounts { [weak self] serverAccounts in
+            APIManager.shared.fetchAccounts { serverAccounts in
                 if let serverAccounts = serverAccounts {
                     DispatchQueue.main.async {
-                        self?.accounts = serverAccounts
+                        self.accounts = serverAccounts
                     }
                 }
             }

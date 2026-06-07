@@ -171,10 +171,13 @@ struct FileViewerView: View {
         }.resume()
     }
 
+    @State private var previewProvider: PreviewItemProvider?
+
     private func openWithQLPreview(_ url: URL) {
+        let provider = PreviewItemProvider(fileURL: url)
+        self.previewProvider = provider  // 强引用防止被释放
         let qlPreview = QLPreviewController()
-        qlPreview.dataSource = PreviewItemProvider(fileURL: url)
-        // 需要通过 UIHostingController 来呈现
+        qlPreview.dataSource = provider
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootVC = windowScene.windows.first?.rootViewController {
             rootVC.present(qlPreview, animated: true)

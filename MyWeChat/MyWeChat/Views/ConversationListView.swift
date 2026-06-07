@@ -40,7 +40,7 @@ struct ConversationListView: View {
                 }
             }
             .listStyle(PlainListStyle())
-            .searchable(text: $searchText, placeholder: "搜索")
+            .searchable(text: $searchText, prompt: "搜索")
             .navigationTitle("微信")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

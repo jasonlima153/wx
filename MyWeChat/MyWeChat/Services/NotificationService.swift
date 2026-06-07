@@ -3,10 +3,11 @@ import UserNotifications
 import UIKit
 
 // MARK: - APNs 推送通知服务
-class NotificationService {
+class NotificationService: NSObject {
     static let shared = NotificationService()
 
-    private init() {
+    private override init() {
+        super.init()
         requestAuthorization()
     }
 
@@ -31,12 +32,12 @@ class NotificationService {
         content.body = body
         content.sound = .default
         content.userInfo = ["sender": sender]
-        content.badge = (UIApplication.shared.applicationIconBadgeNumber) + 1
+        content.badge = NSNumber(value: (UIApplication.shared.applicationIconBadgeNumber) + 1)
 
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
             content: content,
-            trigger: nil // 立即显示
+            trigger: nil
         )
 
         UNUserNotificationCenter.current().add(request) { error in
@@ -50,9 +51,7 @@ class NotificationService {
     func handleDeviceToken(_ deviceToken: Data) {
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         print("📱 Device Token: \(token)")
-
         // TODO: 将 token 发送到后端服务器
-        // APIManager.shared.registerDeviceToken(token)
     }
 
     // MARK: - 更新 Badge
@@ -72,7 +71,6 @@ extension NotificationService: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        // App 在前台时也显示通知
         completionHandler([.banner, .sound, .badge])
     }
 
@@ -82,7 +80,6 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         let userInfo = response.notification.request.content.userInfo
         if let sender = userInfo["sender"] as? String {
             print("📱 用户点击了来自 \(sender) 的通知")
-            // TODO: 导航到对应聊天页面
         }
         completionHandler()
     }
