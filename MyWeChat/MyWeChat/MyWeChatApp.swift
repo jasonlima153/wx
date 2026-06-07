@@ -7,6 +7,6 @@ struct MyWeChatApp: App {
         WindowGroup {
             MainView()
         }
-        .modelContainer(for: [Conversation.self, Message.self])
+        .modelContainer(for: [Conversation.self, Message.self, MassSendTask.self])
     }
 }

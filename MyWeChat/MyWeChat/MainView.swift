@@ -12,22 +12,22 @@ struct MainView: View {
                     Text("微信")
                 }
 
-            Text("通讯录页面")
+            Text("通讯录：好友与群聊列表")
                 .tabItem {
                     Image(systemName: "person.2.fill")
                     Text("通讯录")
                 }
 
-            Text("发现页面")
+            FunctionsView()
                 .tabItem {
-                    Image(systemName: "safari.fill")
-                    Text("发现")
+                    Image(systemName: "square.grid.2x2.fill")
+                    Text("功能")
                 }
 
-            Text("个人中心")
+            Text("设置面板：服务器网络配置")
                 .tabItem {
-                    Image(systemName: "person.fill")
-                    Text("我")
+                    Image(systemName: "gearshape.fill")
+                    Text("设置")
                 }
         }
         .onAppear {

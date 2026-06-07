@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 struct ChatDetailView: View {
     @Environment(\.modelContext) private var modelContext
@@ -7,6 +8,9 @@ struct ChatDetailView: View {
 
     @State private var inputText: String = ""
     @Query private var messages: [Message]
+
+    @State private var selectedPhotoItem: PhotosPickerItem? = nil
+    @State private var isProcessingImage = false
 
     init(conversation: Conversation) {
         self.conversation = conversation
@@ -37,6 +41,10 @@ struct ChatDetailView: View {
                 }
             }
 
+            if isProcessingImage {
+                ProgressView("正在处理图片...").padding()
+            }
+
             HStack(spacing: 12) {
                 Image(systemName: "mic.circle")
                     .font(.system(size: 28))
@@ -58,9 +66,11 @@ struct ChatDetailView: View {
                             .cornerRadius(4)
                     }
                 } else {
-                    Image(systemName: "plus.circle")
-                        .font(.system(size: 28))
-                        .foregroundColor(.gray)
+                    PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
+                        Image(systemName: "photo.circle")
+                            .font(.system(size: 28))
+                            .foregroundColor(.gray)
+                    }
                 }
             }
             .padding(10)
@@ -70,6 +80,9 @@ struct ChatDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             conversation.unreadCount = 0
+        }
+        .onChange(of: selectedPhotoItem) { _, newItem in
+            handleSelectedPhoto(newItem)
         }
     }
 
@@ -86,32 +99,49 @@ struct ChatDetailView: View {
         inputText = ""
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            let replyText = "[模拟本地回复] 收到你的消息: \(sentText)"
+            let replyText = "[模拟回复] 已收到: \(sentText)"
             let replyMsg = Message(conversationId: conversation.id, text: replyText, isFromMe: false)
             modelContext.insert(replyMsg)
-
             conversation.lastMessage = replyText
             conversation.timestamp = Date()
         }
     }
-}
 
-struct MessageBubbleView: View {
-    var message: Message
+    private func handleSelectedPhoto(_ item: PhotosPickerItem?) {
+        guard let item = item else { return }
+        isProcessingImage = true
 
-    var body: some View {
-        HStack {
-            if message.isFromMe { Spacer() }
+        item.loadTransferable(type: Data.self) { result in
+            DispatchQueue.main.async {
+                isProcessingImage = false
+                selectedPhotoItem = nil
 
-            Text(message.text)
-                .font(.system(size: 16))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(message.isFromMe ? Color("WeChatGreen") : Color.white)
-                .foregroundColor(message.isFromMe ? .white : .black)
-                .cornerRadius(6)
+                switch result {
+                case .success(let data):
+                    guard let imageData = data else { return }
 
-            if !message.isFromMe { Spacer() }
+                    guard let relativePath = SandboxUtil.saveImageToSandbox(data: imageData) else {
+                        print("❌ 保存沙盒失败")
+                        return
+                    }
+
+                    let imgMsg = Message(
+                        conversationId: conversation.id,
+                        text: "[图片消息]",
+                        isFromMe: true,
+                        msgType: "image",
+                        localImagePath: relativePath
+                    )
+
+                    modelContext.insert(imgMsg)
+                    conversation.lastMessage = "[图片]"
+                    conversation.timestamp = Date()
+                    print("✅ 图片消息已存入数据库: \(relativePath)")
+
+                case .failure(let error):
+                    print("❌ 读取相册失败: \(error.localizedDescription)")
+                }
+            }
         }
     }
 }
