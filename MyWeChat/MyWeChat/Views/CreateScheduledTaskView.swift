@@ -8,6 +8,8 @@ struct CreateScheduledTaskView: View {
     // 任务参数
     @State private var taskName: String = ""
     @State private var messageContent: String = ""
+    @State private var messageType: MessageType = .text
+    @State private var mediaURL: String = ""
     @State private var sendTime = Date()
     @State private var repeatInterval: Int = 0
     @State private var repeatCount: Int = 1
@@ -19,8 +21,10 @@ struct CreateScheduledTaskView: View {
     // UI 状态
     @State private var showingAccountPicker = false
     @State private var showingTargetPicker = false
+    @State private var showingImagePicker = false
     @State private var isCreating = false
     @State private var showSuccess = false
+    @State private var selectedPhotoItem: PhotosPickerItem?
 
     // 快速选择目标
     let quickTargets = ["张三", "李四", "王五", "工作群", "项目组", "全员"]
@@ -44,14 +48,48 @@ struct CreateScheduledTaskView: View {
                     TextField("例如：每日早安", text: $taskName)
                 }
 
-                // 消息内容
-                Section(header: Text("消息内容")) {
-                    TextEditor(text: $messageContent)
-                        .frame(height: 100)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 0.5)
-                        )
+                // 消息类型
+                Section(header: Text("消息类型")) {
+                    Picker("类型", selection: $messageType) {
+                        Text("文字").tag(MessageType.text)
+                        Text("图片").tag(MessageType.image)
+                        Text("语音").tag(MessageType.voice)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+
+                // 消息内容/媒体
+                Section(header: Text(messageType == .text ? "消息内容" : "媒体文件")) {
+                    if messageType == .text {
+                        TextEditor(text: $messageContent)
+                            .frame(height: 100)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 0.5)
+                            )
+                    } else {
+                        if mediaURL.isEmpty {
+                            Button(action: { showingImagePicker = true }) {
+                                HStack {
+                                    Image(systemName: messageType == .image ? "photo.on.rectangle" : "mic")
+                                    Text(messageType == .image ? "选择图片" : "选择语音文件")
+                                }
+                                .foregroundColor(.green)
+                            }
+                        } else {
+                            HStack {
+                                Image(systemName: messageType == .image ? "photo" : "waveform")
+                                    .foregroundColor(.green)
+                                Text(mediaURL.components(separatedBy: "/").last ?? "已上传")
+                                    .lineLimit(1)
+                                Spacer()
+                                Button(action: { mediaURL = "" }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.red)
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // 发送账号
@@ -148,7 +186,7 @@ struct CreateScheduledTaskView: View {
                         .listRowInsets(EdgeInsets())
                     }
                     .listRowBackground(Color.green)
-                    .disabled(messageContent.isEmpty || selectedAccounts.isEmpty || selectedTargets.isEmpty || isCreating)
+                    .disabled(isFormInvalid || isCreating)
                 }
             }
             .navigationTitle("新建群发任务")
@@ -163,6 +201,32 @@ struct CreateScheduledTaskView: View {
             .sheet(isPresented: $showingTargetPicker) {
                 TargetPickerView(selectedTargets: $selectedTargets)
             }
+            .photosPicker(isPresented: $showingImagePicker, selection: $selectedPhotoItem, matching: messageType == .image ? .images : .videos)
+            .onChange(of: selectedPhotoItem) { newItem in
+                guard let newItem = newItem else { return }
+                newItem.loadTransferable(type: Data.self) { result in
+                    if case .success(let data) = result, let data = data {
+                        if messageType == .image, let image = UIImage(data: data) {
+                            UploadManager.shared.uploadImage(image, to: "scheduled") { url in
+                                if let url = url {
+                                    DispatchQueue.main.async {
+                                        self.mediaURL = url
+                                    }
+                                }
+                            }
+                        } else {
+                            // 语音文件直接上传
+                            UploadManager.shared.uploadVoice(data, duration: 0, to: "scheduled") { url in
+                                if let url = url {
+                                    DispatchQueue.main.async {
+                                        self.mediaURL = url
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             .alert(isPresented: $showSuccess) {
                 Alert(
                     title: Text("成功"),
@@ -175,12 +239,19 @@ struct CreateScheduledTaskView: View {
         }
     }
 
+    private var isFormInvalid: Bool {
+        let hasContent = messageType == .text ? !messageContent.isEmpty : !mediaURL.isEmpty
+        return !hasContent || selectedAccounts.isEmpty || selectedTargets.isEmpty
+    }
+
     private func createTask() {
         isCreating = true
+        let content = messageType == .text ? messageContent : mediaURL
         taskManager.createTask(
             name: taskName,
-            messageContent: messageContent,
-            msgType: "text",
+            messageContent: content,
+            msgType: messageType.rawValue,
+            mediaURL: messageType == .text ? nil : mediaURL,
             targetAccounts: selectedAccounts.map { $0.id },
             targets: selectedTargets,
             sendTime: sendTime,

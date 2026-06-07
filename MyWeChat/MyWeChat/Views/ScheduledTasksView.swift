@@ -177,6 +177,7 @@ class ScheduledTaskManager: ObservableObject {
     }
 
     func createTask(name: String, messageContent: String, msgType: String,
+                    mediaURL: String? = nil,
                     targetAccounts: [String], targets: [String],
                     sendTime: Date, repeatInterval: Int, repeatCount: Int,
                     completion: @escaping (Bool) -> Void) {
@@ -188,7 +189,7 @@ class ScheduledTaskManager: ObservableObject {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-        let body: [String: Any] = [
+        var body: [String: Any] = [
             "name": name,
             "message_content": messageContent,
             "msg_type": msgType,
@@ -198,6 +199,9 @@ class ScheduledTaskManager: ObservableObject {
             "repeat_interval": repeatInterval,
             "repeat_count": repeatCount
         ]
+        if let mediaURL = mediaURL, !mediaURL.isEmpty {
+            body["media_url"] = mediaURL
+        }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
