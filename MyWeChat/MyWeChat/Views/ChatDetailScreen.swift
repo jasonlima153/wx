@@ -2,13 +2,16 @@ import SwiftUI
 
 struct ChatDetailScreen: View {
     @EnvironmentObject private var session: AppSession
+    var chatTitle: String = "聊天"
+    var chatID: String = ""
     @State private var inputText: String = ""
     @State private var pickerPresented = false
     @State private var selectedMedia: MediaSelection?
     @StateObject private var recorder = AudioRecorder()
 
     private var currentMessages: [ChatMessage] {
-        session.messages[session.selectedChatID, default: []]
+        let cid = chatID.isEmpty ? session.selectedChatID : chatID
+        return session.messages[cid, default: []]
     }
 
     var body: some View {
@@ -80,7 +83,14 @@ struct ChatDetailScreen: View {
             }
             .padding()
         }
-        .navigationTitle("聊天")
+        .navigationTitle(chatTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            if !chatID.isEmpty {
+                session.selectedChatID = chatID
+                session.persistAll()
+            }
+        }
         .sheet(isPresented: $pickerPresented) {
             MediaPicker { result in
                 switch result {

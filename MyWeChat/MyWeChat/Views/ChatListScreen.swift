@@ -2,14 +2,26 @@ import SwiftUI
 
 struct ChatListScreen: View {
     @EnvironmentObject private var session: AppSession
+    @State private var searchText = ""
+
+    // 搜索过滤
+    var searchResults: [Chat] {
+        if searchText.isEmpty {
+            return session.chats
+        }
+        return session.chats.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.subtitle.localizedCaseInsensitiveContains(searchText)
+        }
+    }
 
     var body: some View {
         NavigationStack {
             List {
-                ForEach(session.chats) { chat in
-                    Button {
-                        session.selectedChatID = chat.id
-                        session.persistAll()
+                ForEach(searchResults) { chat in
+                    // 点击跳转到聊天详情页
+                    NavigationLink {
+                        ChatDetailScreen(chatTitle: chat.title, chatID: chat.id)
                     } label: {
                         HStack(spacing: 12) {
                             AvatarCircle(text: chat.title)
@@ -34,11 +46,23 @@ struct ChatListScreen: View {
                 }
             }
             .navigationTitle("会话")
-            .toolbar {
-                NavigationLink("聊天") {
-                    ChatDetailScreen()
-                }
+            .searchable(text: $searchText, prompt: "搜索联系人或群组")
+            .refreshable {
+                await refreshConversations()
             }
+        }
+    }
+
+    // 下拉刷新：从后端拉取最新会话列表
+    private func refreshConversations() async {
+        do {
+            let updated = try await session.api.fetchConversations(accountID: session.selectedAccountID)
+            if !updated.isEmpty {
+                session.chats = updated
+                session.storage.saveChats(updated)
+            }
+        } catch {
+            session.lastError = "刷新失败: \(error.localizedDescription)"
         }
     }
 }
