@@ -24,7 +24,7 @@ struct ChatDetailScreen: View {
                     .padding(.vertical, 12)
                     .padding(.horizontal, 12)
                 }
-                .onChange(of: currentMessages.count) {
+                .onChange(of: currentMessages.count) { _ in
                     if let last = currentMessages.last {
                         withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
                     }
