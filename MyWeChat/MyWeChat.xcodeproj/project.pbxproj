@@ -18,6 +18,8 @@
 		A1B2C3D4E5F67890123456B2 /* SandboxUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F67890123456B3 /* SandboxUtil.swift */; };
 		A1B2C3D4E5F67890123456B4 /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F67890123456B5 /* MessageBubbleView.swift */; };
 		A1B2C3D4E5F67890123456B6 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F67890123456B7 /* PhotosUI.framework */; };
+		A1B2C3D4E5F67890123456C0 /* ContactPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F67890123456C1 /* ContactPickerView.swift */; };
+		A1B2C3D4E5F67890123456C2 /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F67890123456C3 /* WebSocketManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		A1B2C3D4E5F67890123456B7 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6789012345686 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1B2C3D4E5F6789012345687 /* MyWeChat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyWeChat.entitlements; sourceTree = "<group>"; };
+		A1B2C3D4E5F67890123456C1 /* ContactPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPickerView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F67890123456C3 /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6789012345688 /* MyWeChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWeChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -70,6 +74,8 @@
 				A1B2C3D4E5F67890123456B1 /* FunctionsView.swift */,
 				A1B2C3D4E5F67890123456B3 /* SandboxUtil.swift */,
 				A1B2C3D4E5F67890123456B5 /* MessageBubbleView.swift */,
+				A1B2C3D4E5F67890123456C1 /* ContactPickerView.swift */,
+				A1B2C3D4E5F67890123456C3 /* WebSocketManager.swift */,
 				A1B2C3D4E5F6789012345683 /* Assets.xcassets */,
 				A1B2C3D4E5F6789012345686 /* Info.plist */,
 				A1B2C3D4E5F6789012345687 /* MyWeChat.entitlements */,
@@ -171,6 +177,8 @@
 				A1B2C3D4E5F67890123456B0 /* FunctionsView.swift in Sources */,
 				A1B2C3D4E5F67890123456B2 /* SandboxUtil.swift in Sources */,
 				A1B2C3D4E5F67890123456B4 /* MessageBubbleView.swift in Sources */,
+				A1B2C3D4E5F67890123456C0 /* ContactPickerView.swift in Sources */,
+				A1B2C3D4E5F67890123456C2 /* WebSocketManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

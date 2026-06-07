@@ -158,6 +158,10 @@ struct AddTaskView: View {
             repeatMode: repeatMode
         )
         modelContext.insert(newTask)
+
+        // 同步群发任务到云端服务器
+        WebSocketManager.shared.syncMassTaskToServer(task: newTask)
+
         presentationMode.wrappedValue.dismiss()
     }
 }

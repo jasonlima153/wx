@@ -5,6 +5,8 @@ struct MessageBubbleView: View {
     @Environment(\.modelContext) private var modelContext
     var message: Message
 
+    @State private var showForwardSheet = false
+
     var body: some View {
         HStack(alignment: .top) {
             if message.isFromMe { Spacer() }
@@ -34,7 +36,7 @@ struct MessageBubbleView: View {
                             .disabled(message.msgType == "image")
 
                             Button {
-                                print("转发消息: \(message.id)")
+                                showForwardSheet = true
                             } label: {
                                 Label("转发", systemImage: "arrowshape.turn.up.right")
                             }
@@ -66,6 +68,14 @@ struct MessageBubbleView: View {
             }
 
             if !message.isFromMe { Spacer() }
+        }
+        .sheet(isPresented: $showForwardSheet) {
+            ContactPickerView { selectedTargets in
+                print("准备把消息 [\(message.text)] 转发给: \(selectedTargets)")
+                for target in selectedTargets {
+                    WebSocketManager.shared.sendMessage("【转发】\(message.text)", to: target)
+                }
+            }
         }
     }
 
@@ -106,6 +116,9 @@ struct MessageBubbleView: View {
             message.text = "[撤回消息]"
             message.isRecalled = true
             print("✅ 消息已在手机本地撤回: \(message.id)")
+
+            // 同步撤回指令到云端服务器
+            WebSocketManager.shared.sendRecallCommand(messageId: message.id, targetId: message.conversationId)
         }
     }
 }

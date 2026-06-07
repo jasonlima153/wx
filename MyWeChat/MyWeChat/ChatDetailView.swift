@@ -138,6 +138,9 @@ struct ChatDetailView: View {
                     conversation.timestamp = Date()
                     print("✅ 图片消息已存入数据库: \(relativePath)")
 
+                    // 同步图片消息指令到云端服务器
+                    WebSocketManager.shared.sendImageMessageSync(localPath: relativePath, to: conversation.id)
+
                 case .failure(let error):
                     print("❌ 读取相册失败: \(error.localizedDescription)")
                 }
