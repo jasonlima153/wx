@@ -80,24 +80,25 @@ class StorageManager {
     private func execute(sql: String, params: [Any]? = nil) {
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK {
+            guard let stmt = statement else { return }
             if let params = params {
                 for (index, param) in params.enumerated() {
                     let idx = Int32(index + 1)
                     if let text = param as? String {
-                        sqlite3_bind_text(statement, idx, (text as NSString).utf8String, -1, nil)
+                        sqlite3_bind_text(stmt, idx, (text as NSString).utf8String, -1, nil)
                     } else if let num = param as? Int {
-                        sqlite3_bind_int(statement, idx, Int32(num))
+                        sqlite3_bind_int(stmt, idx, Int32(num))
                     } else if let num = param as? Int64 {
-                        sqlite3_bind_int64(statement, idx, num)
+                        sqlite3_bind_int64(stmt, idx, num)
                     } else if let num = param as? Double {
-                        sqlite3_bind_double(statement, idx, num)
+                        sqlite3_bind_double(stmt, idx, num)
                     } else if let num = param as? Bool {
-                        sqlite3_bind_int(statement, idx, num ? 1 : 0)
+                        sqlite3_bind_int(stmt, idx, num ? 1 : 0)
                     }
                 }
             }
-            sqlite3_step(statement)
-            sqlite3_finalize(statement)
+            sqlite3_step(stmt)
+            sqlite3_finalize(stmt)
         }
     }
 
@@ -133,16 +134,17 @@ class StorageManager {
         """
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK {
-            sqlite3_bind_text(statement, 1, (accountID as NSString).utf8String, -1, nil)
-            sqlite3_bind_text(statement, 2, (conversationName as NSString).utf8String, -1, nil)
-            sqlite3_bind_text(statement, 3, (conversationName as NSString).utf8String, -1, nil)
+            guard let stmt = statement else { return results }
+            sqlite3_bind_text(stmt, 1, (accountID as NSString).utf8String, -1, nil)
+            sqlite3_bind_text(stmt, 2, (conversationName as NSString).utf8String, -1, nil)
+            sqlite3_bind_text(stmt, 3, (conversationName as NSString).utf8String, -1, nil)
 
-            while sqlite3_step(statement) == SQLITE_ROW {
-                if let msg = parseMessageRow(statement) {
+            while sqlite3_step(stmt) == SQLITE_ROW {
+                if let msg = parseMessageRow(stmt) {
                     results.append(msg)
                 }
             }
-            sqlite3_finalize(statement)
+            sqlite3_finalize(stmt)
         }
         return results.reversed()
     }
@@ -152,9 +154,10 @@ class StorageManager {
         let sql = "SELECT * FROM messages WHERE account_id = ? AND is_read = 0 ORDER BY timestamp;"
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK {
-            sqlite3_bind_text(statement, 1, (accountID as NSString).utf8String, -1, nil)
-            while sqlite3_step(statement) == SQLITE_ROW {
-                if let msg = parseMessageRow(statement) {
+            guard let stmt = statement else { return results }
+            sqlite3_bind_text(stmt, 1, (accountID as NSString).utf8String, -1, nil)
+            while sqlite3_step(stmt) == SQLITE_ROW {
+                if let msg = parseMessageRow(stmt) {
                     results.append(msg)
                 }
             }
@@ -195,17 +198,18 @@ class StorageManager {
         let sql = "SELECT * FROM conversations WHERE account_id = ? ORDER BY is_pinned DESC, last_message_time DESC;"
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK {
-            sqlite3_bind_text(statement, 1, (accountID as NSString).utf8String, -1, nil)
-            while sqlite3_step(statement) == SQLITE_ROW {
-                let id = String(cString: sqlite3_column_text(statement, 0))
-                let name = String(cString: sqlite3_column_text(statement, 1))
-                let avatar = String(cString: sqlite3_column_text(statement, 2))
-                let lastMsg = String(cString: sqlite3_column_text(statement, 3))
-                let lastTime = sqlite3_column_double(statement, 4)
-                let unread = Int(sqlite3_column_int(statement, 5))
-                let accID = String(cString: sqlite3_column_text(statement, 6))
-                let isGroup = sqlite3_column_int(statement, 7) == 1
-                let isPinned = sqlite3_column_int(statement, 8) == 1
+            guard let stmt = statement else { return results }
+            sqlite3_bind_text(stmt, 1, (accountID as NSString).utf8String, -1, nil)
+            while sqlite3_step(stmt) == SQLITE_ROW {
+                let id = String(cString: sqlite3_column_text(stmt, 0))
+                let name = String(cString: sqlite3_column_text(stmt, 1))
+                let avatar = String(cString: sqlite3_column_text(stmt, 2))
+                let lastMsg = String(cString: sqlite3_column_text(stmt, 3))
+                let lastTime = sqlite3_column_double(stmt, 4)
+                let unread = Int(sqlite3_column_int(stmt, 5))
+                let accID = String(cString: sqlite3_column_text(stmt, 6))
+                let isGroup = sqlite3_column_int(stmt, 7) == 1
+                let isPinned = sqlite3_column_int(stmt, 8) == 1
 
                 results.append(Conversation(
                     id: id, name: name, avatar: avatar.isEmpty ? nil : avatar,
@@ -240,15 +244,16 @@ class StorageManager {
         let sql = "SELECT * FROM accounts ORDER BY is_active DESC, last_login DESC;"
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK {
-            while sqlite3_step(statement) == SQLITE_ROW {
-                let id = String(cString: sqlite3_column_text(statement, 0))
-                let nickname = String(cString: sqlite3_column_text(statement, 1))
-                let wxID = String(cString: sqlite3_column_text(statement, 2))
-                let phone = String(cString: sqlite3_column_text(statement, 3))
-                let avatar = String(cString: sqlite3_column_text(statement, 4))
-                let isActive = sqlite3_column_int(statement, 5) == 1
-                let lastLogin = sqlite3_column_double(statement, 6)
-                let serverURL = String(cString: sqlite3_column_text(statement, 7))
+            guard let stmt = statement else { return results }
+            while sqlite3_step(stmt) == SQLITE_ROW {
+                let id = String(cString: sqlite3_column_text(stmt, 0))
+                let nickname = String(cString: sqlite3_column_text(stmt, 1))
+                let wxID = String(cString: sqlite3_column_text(stmt, 2))
+                let phone = String(cString: sqlite3_column_text(stmt, 3))
+                let avatar = String(cString: sqlite3_column_text(stmt, 4))
+                let isActive = sqlite3_column_int(stmt, 5) == 1
+                let lastLogin = sqlite3_column_double(stmt, 6)
+                let serverURL = String(cString: sqlite3_column_text(stmt, 7))
 
                 results.append(WeChatAccount(
                     id: id, nickname: nickname, avatar: avatar.isEmpty ? nil : avatar,
@@ -258,7 +263,7 @@ class StorageManager {
                     serverURL: serverURL.isEmpty ? nil : serverURL
                 ))
             }
-            sqlite3_finalize(statement)
+            sqlite3_finalize(stmt)
         }
         return results
     }

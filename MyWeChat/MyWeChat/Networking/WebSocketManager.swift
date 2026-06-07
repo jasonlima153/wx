@@ -165,7 +165,7 @@ class WebSocketManager: ObservableObject {
         guard let wsMsg = try? JSONDecoder().decode(WSMessage.self, from: data) else { return }
 
         if wsMsg.type == "new_message" {
-            let msg = Message(
+            var msg = Message(
                 id: wsMsg.message_id ?? UUID().uuidString,
                 sender: wsMsg.sender ?? "",
                 receiver: wsMsg.receiver ?? "",

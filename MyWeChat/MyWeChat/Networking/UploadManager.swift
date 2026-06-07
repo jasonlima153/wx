@@ -128,6 +128,7 @@ class UploadManager {
                                 type: MessageType, fileName: String? = nil,
                                 fileSize: Int64? = nil, voiceDuration: Double? = nil,
                                 completion: @escaping (String?) -> Void) {
+        var request = request
         request.httpBody = body
 
         let task = URLSession.shared.uploadTask(with: request, from: body) { data, _, error in
