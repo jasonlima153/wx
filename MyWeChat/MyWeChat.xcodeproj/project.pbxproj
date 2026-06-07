@@ -8,27 +8,29 @@
 
 /* Begin PBXBuildFile section */
 		A1000200 /* MyWeChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000100 /* MyWeChatApp.swift */; };
-		A1000201 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000101 /* Message.swift */; };
+		A1000201 /* AppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000101 /* AppSession.swift */; };
 		A1000202 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000102 /* Account.swift */; };
-		A1000203 /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000103 /* Media.swift */; };
-		A1000204 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000104 /* StorageManager.swift */; };
-		A1000205 /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000105 /* WebSocketManager.swift */; };
-		A1000206 /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000106 /* APIManager.swift */; };
-		A1000207 /* UploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000107 /* UploadManager.swift */; };
-		A1000208 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000108 /* NotificationService.swift */; };
-		A1000209 /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000109 /* AudioService.swift */; };
-		A100020A /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010A /* MainTabView.swift */; };
-		A100020B /* ConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010B /* ConversationListView.swift */; };
-		A100020C /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010C /* ChatView.swift */; };
-		A100020D /* MessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010D /* MessageRow.swift */; };
-		A100020E /* AccountSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010E /* AccountSelectionView.swift */; };
-		A100020F /* MediaViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010F /* MediaViewer.swift */; };
-		A1000210 /* FileViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000110 /* FileViewer.swift */; };
-		A1000211 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000111 /* SettingsView.swift */; };
-		A1000212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000112 /* Assets.xcassets */; };
-		A1000213 /* ScheduledMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000116 /* ScheduledMessage.swift */; };
-		A1000214 /* ScheduledTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000117 /* ScheduledTasksView.swift */; };
-		A1000215 /* CreateScheduledTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000118 /* CreateScheduledTaskView.swift */; };
+		A1000203 /* Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000103 /* Chat.swift */; };
+		A1000204 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000104 /* ChatMessage.swift */; };
+		A1000205 /* ScheduleTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000105 /* ScheduleTask.swift */; };
+		A1000206 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000106 /* AppSettings.swift */; };
+		A1000207 /* MediaSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000107 /* MediaSelection.swift */; };
+		A1000208 /* NetworkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000108 /* NetworkModels.swift */; };
+		A1000209 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000109 /* StorageManager.swift */; };
+		A100020A /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010A /* AudioRecorder.swift */; };
+		A100020B /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010B /* APIClient.swift */; };
+		A100020C /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010C /* WebSocketManager.swift */; };
+		A100020D /* MediaPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010D /* MediaPicker.swift */; };
+		A100020E /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010E /* Helpers.swift */; };
+		A100020F /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010F /* RootView.swift */; };
+		A1000210 /* ChatListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000110 /* ChatListScreen.swift */; };
+		A1000211 /* ChatDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000111 /* ChatDetailScreen.swift */; };
+		A1000212 /* MessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000112 /* MessageRow.swift */; };
+		A1000213 /* AccountScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000113 /* AccountScreen.swift */; };
+		A1000214 /* ScheduleListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000114 /* ScheduleListScreen.swift */; };
+		A1000215 /* ScheduleEditorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000115 /* ScheduleEditorScreen.swift */; };
+		A1000216 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000116 /* SettingsScreen.swift */; };
+		A1000217 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000117 /* Assets.xcassets */; };
 		A1000300 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000400 /* PhotosUI.framework */; };
 		A1000301 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000401 /* QuickLook.framework */; };
 		A1000302 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000402 /* AVFoundation.framework */; };
@@ -38,30 +40,32 @@
 
 /* Begin PBXFileReference section */
 		A1000100 /* MyWeChatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyWeChatApp.swift; sourceTree = "<group>"; };
-		A1000101 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		A1000101 /* AppSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSession.swift; sourceTree = "<group>"; };
 		A1000102 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
-		A1000103 /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
-		A1000104 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
-		A1000105 /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
-		A1000106 /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
-		A1000107 /* UploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadManager.swift; sourceTree = "<group>"; };
-		A1000108 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
-		A1000109 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
-		A100010A /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		A100010B /* ConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListView.swift; sourceTree = "<group>"; };
-		A100010C /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
-		A100010D /* MessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRow.swift; sourceTree = "<group>"; };
-		A100010E /* AccountSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectionView.swift; sourceTree = "<group>"; };
-		A100010F /* MediaViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaViewer.swift; sourceTree = "<group>"; };
-		A1000110 /* FileViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewer.swift; sourceTree = "<group>"; };
-		A1000111 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		A1000112 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A1000113 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1000114 /* MyWeChat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyWeChat.entitlements; sourceTree = "<group>"; };
-		A1000115 /* MyWeChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWeChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1000116 /* ScheduledMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduledMessage.swift; sourceTree = "<group>"; };
-		A1000117 /* ScheduledTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduledTasksView.swift; sourceTree = "<group>"; };
-		A1000118 /* CreateScheduledTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateScheduledTaskView.swift; sourceTree = "<group>"; };
+		A1000103 /* Chat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chat.swift; sourceTree = "<group>"; };
+		A1000104 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		A1000105 /* ScheduleTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleTask.swift; sourceTree = "<group>"; };
+		A1000106 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A1000107 /* MediaSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSelection.swift; sourceTree = "<group>"; };
+		A1000108 /* NetworkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkModels.swift; sourceTree = "<group>"; };
+		A1000109 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		A100010A /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		A100010B /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		A100010C /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
+		A100010D /* MediaPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPicker.swift; sourceTree = "<group>"; };
+		A100010E /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		A100010F /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		A1000110 /* ChatListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListScreen.swift; sourceTree = "<group>"; };
+		A1000111 /* ChatDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatDetailScreen.swift; sourceTree = "<group>"; };
+		A1000112 /* MessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRow.swift; sourceTree = "<group>"; };
+		A1000113 /* AccountScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScreen.swift; sourceTree = "<group>"; };
+		A1000114 /* ScheduleListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleListScreen.swift; sourceTree = "<group>"; };
+		A1000115 /* ScheduleEditorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEditorScreen.swift; sourceTree = "<group>"; };
+		A1000116 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		A1000117 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1000118 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1000119 /* MyWeChat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyWeChat.entitlements; sourceTree = "<group>"; };
+		A100011A /* MyWeChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWeChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000400 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
 		A1000401 /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		A1000402 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -88,83 +92,77 @@
 		A1000500 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				A1000101 /* Message.swift */,
 				A1000102 /* Account.swift */,
-				A1000103 /* Media.swift */,
-				A1000116 /* ScheduledMessage.swift */,
+				A1000103 /* Chat.swift */,
+				A1000104 /* ChatMessage.swift */,
+				A1000105 /* ScheduleTask.swift */,
+				A1000106 /* AppSettings.swift */,
+				A1000107 /* MediaSelection.swift */,
+				A1000108 /* NetworkModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
 		};
-		A1000501 /* Database */ = {
+		A1000501 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				A1000104 /* StorageManager.swift */,
+				A1000109 /* StorageManager.swift */,
+				A100010A /* AudioRecorder.swift */,
 			);
-			path = Database;
+			path = Services;
 			sourceTree = "<group>";
 		};
 		A1000502 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				A1000105 /* WebSocketManager.swift */,
-				A1000106 /* APIManager.swift */,
-				A1000107 /* UploadManager.swift */,
+				A100010B /* APIClient.swift */,
+				A100010C /* WebSocketManager.swift */,
+				A100010D /* MediaPicker.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
 		};
-		A1000503 /* Services */ = {
+		A1000503 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				A1000108 /* NotificationService.swift */,
-				A1000109 /* AudioService.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		A1000504 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				A100010A /* MainTabView.swift */,
-				A100010B /* ConversationListView.swift */,
-				A100010C /* ChatView.swift */,
-				A100010D /* MessageRow.swift */,
-				A100010E /* AccountSelectionView.swift */,
-				A100010F /* MediaViewer.swift */,
-				A1000110 /* FileViewer.swift */,
-				A1000111 /* SettingsView.swift */,
-				A1000117 /* ScheduledTasksView.swift */,
-				A1000118 /* CreateScheduledTaskView.swift */,
+				A100010E /* Helpers.swift */,
+				A100010F /* RootView.swift */,
+				A1000110 /* ChatListScreen.swift */,
+				A1000111 /* ChatDetailScreen.swift */,
+				A1000112 /* MessageRow.swift */,
+				A1000113 /* AccountScreen.swift */,
+				A1000114 /* ScheduleListScreen.swift */,
+				A1000115 /* ScheduleEditorScreen.swift */,
+				A1000116 /* SettingsScreen.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		A1000505 /* MyWeChat */ = {
+		A1000504 /* MyWeChat */ = {
 			isa = PBXGroup;
 			children = (
 				A1000100 /* MyWeChatApp.swift */,
+				A1000101 /* AppSession.swift */,
 				A1000500 /* Models */,
-				A1000501 /* Database */,
+				A1000501 /* Services */,
 				A1000502 /* Networking */,
-				A1000503 /* Services */,
-				A1000504 /* Views */,
-				A1000112 /* Assets.xcassets */,
-				A1000113 /* Info.plist */,
-				A1000114 /* MyWeChat.entitlements */,
+				A1000503 /* Views */,
+				A1000117 /* Assets.xcassets */,
+				A1000118 /* Info.plist */,
+				A1000119 /* MyWeChat.entitlements */,
 			);
 			path = MyWeChat;
 			sourceTree = "<group>";
 		};
-		A1000506 /* Products */ = {
+		A1000505 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1000115 /* MyWeChat.app */,
+				A100011A /* MyWeChat.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1000507 /* Frameworks */ = {
+		A1000506 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				A1000400 /* PhotosUI.framework */,
@@ -176,12 +174,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		A1000508 = {
+		A1000507 = {
 			isa = PBXGroup;
 			children = (
-				A1000505 /* MyWeChat */,
-				A1000507 /* Frameworks */,
-				A1000506 /* Products */,
+				A1000504 /* MyWeChat */,
+				A1000506 /* Frameworks */,
+				A1000505 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -202,7 +200,7 @@
 			);
 			name = MyWeChat;
 			productName = MyWeChat;
-			productReference = A1000115 /* MyWeChat.app */;
+			productReference = A100011A /* MyWeChat.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -228,8 +226,8 @@
 				en,
 				Base,
 			);
-			mainGroup = A1000508;
-			productRefGroup = A1000506 /* Products */;
+			mainGroup = A1000507;
+			productRefGroup = A1000505 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -243,7 +241,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000212 /* Assets.xcassets in Resources */,
+				A1000217 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,26 +253,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000200 /* MyWeChatApp.swift in Sources */,
-				A1000201 /* Message.swift in Sources */,
+				A1000201 /* AppSession.swift in Sources */,
 				A1000202 /* Account.swift in Sources */,
-				A1000203 /* Media.swift in Sources */,
-				A1000204 /* StorageManager.swift in Sources */,
-				A1000205 /* WebSocketManager.swift in Sources */,
-				A1000206 /* APIManager.swift in Sources */,
-				A1000207 /* UploadManager.swift in Sources */,
-				A1000208 /* NotificationService.swift in Sources */,
-				A1000209 /* AudioService.swift in Sources */,
-				A100020A /* MainTabView.swift in Sources */,
-				A100020B /* ConversationListView.swift in Sources */,
-				A100020C /* ChatView.swift in Sources */,
-				A100020D /* MessageRow.swift in Sources */,
-				A100020E /* AccountSelectionView.swift in Sources */,
-				A100020F /* MediaViewer.swift in Sources */,
-				A1000210 /* FileViewer.swift in Sources */,
-				A1000211 /* SettingsView.swift in Sources */,
-				A1000213 /* ScheduledMessage.swift in Sources */,
-				A1000214 /* ScheduledTasksView.swift in Sources */,
-				A1000215 /* CreateScheduledTaskView.swift in Sources */,
+				A1000203 /* Chat.swift in Sources */,
+				A1000204 /* ChatMessage.swift in Sources */,
+				A1000205 /* ScheduleTask.swift in Sources */,
+				A1000206 /* AppSettings.swift in Sources */,
+				A1000207 /* MediaSelection.swift in Sources */,
+				A1000208 /* NetworkModels.swift in Sources */,
+				A1000209 /* StorageManager.swift in Sources */,
+				A100020A /* AudioRecorder.swift in Sources */,
+				A100020B /* APIClient.swift in Sources */,
+				A100020C /* WebSocketManager.swift in Sources */,
+				A100020D /* MediaPicker.swift in Sources */,
+				A100020E /* Helpers.swift in Sources */,
+				A100020F /* RootView.swift in Sources */,
+				A1000210 /* ChatListScreen.swift in Sources */,
+				A1000211 /* ChatDetailScreen.swift in Sources */,
+				A1000212 /* MessageRow.swift in Sources */,
+				A1000213 /* AccountScreen.swift in Sources */,
+				A1000214 /* ScheduleListScreen.swift in Sources */,
+				A1000215 /* ScheduleEditorScreen.swift in Sources */,
+				A1000216 /* SettingsScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
