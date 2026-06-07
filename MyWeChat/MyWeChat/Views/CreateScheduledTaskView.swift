@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 // MARK: - 创建定时群发任务视图
 struct CreateScheduledTaskView: View {
@@ -8,11 +9,15 @@ struct CreateScheduledTaskView: View {
     // 任务参数
     @State private var taskName: String = ""
     @State private var messageContent: String = ""
-    @State private var messageType: MessageType = .text
+    @State private var messageTypeRaw: String = "text"
     @State private var mediaURL: String = ""
     @State private var sendTime = Date()
     @State private var repeatInterval: Int = 0
     @State private var repeatCount: Int = 1
+
+    private var messageType: MessageType {
+        MessageType(rawValue: messageTypeRaw) ?? .text
+    }
 
     // 多选状态
     @State private var selectedAccounts: [WeChatAccount] = []
@@ -50,10 +55,10 @@ struct CreateScheduledTaskView: View {
 
                 // 消息类型
                 Section(header: Text("消息类型")) {
-                    Picker("类型", selection: $messageType) {
-                        Text("文字").tag(MessageType.text)
-                        Text("图片").tag(MessageType.image)
-                        Text("语音").tag(MessageType.voice)
+                    Picker("类型", selection: $messageTypeRaw) {
+                        Text("文字").tag("text")
+                        Text("图片").tag("image")
+                        Text("语音").tag("voice")
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }
