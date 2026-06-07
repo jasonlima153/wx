@@ -45,13 +45,13 @@ class Message {
     }
 }
 
-// MARK: - 定时群发任务模型
+// MARK: - 定时群发任务模型 (防崩溃安全版)
 @Model
 class MassSendTask {
     @Attribute(.unique) var id: String
     var taskName: String
-    var targetNames: [String]
-    var targetIds: [String]
+    var targetNamesString: String
+    var targetIdsString: String
     var messageContent: String
     var triggerTime: Date
     var repeatMode: String
@@ -60,11 +60,19 @@ class MassSendTask {
     init(id: String = UUID().uuidString, taskName: String, targetNames: [String], targetIds: [String], messageContent: String, triggerTime: Date, repeatMode: String = "单次", isActive: Bool = true) {
         self.id = id
         self.taskName = taskName
-        self.targetNames = targetNames
-        self.targetIds = targetIds
+        self.targetNamesString = targetNames.joined(separator: ",")
+        self.targetIdsString = targetIds.joined(separator: ",")
         self.messageContent = messageContent
         self.triggerTime = triggerTime
         self.repeatMode = repeatMode
         self.isActive = isActive
+    }
+
+    var targetNames: [String] {
+        targetNamesString.isEmpty ? [] : targetNamesString.components(separatedBy: ",")
+    }
+
+    var targetIds: [String] {
+        targetIdsString.isEmpty ? [] : targetIdsString.components(separatedBy: ",")
     }
 }
