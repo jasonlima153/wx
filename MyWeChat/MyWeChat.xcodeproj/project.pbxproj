@@ -7,75 +7,185 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1000001 /* MyWeChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000 /* MyWeChatApp.swift */; };
-		A1000003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002 /* Models.swift */; };
-		A1000005 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004 /* Views.swift */; };
-		A1000007 /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006 /* WebSocketManager.swift */; };
-		A1000009 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000008 /* Assets.xcassets */; };
+		A1000200 /* MyWeChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000100 /* MyWeChatApp.swift */; };
+		A1000201 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000101 /* Message.swift */; };
+		A1000202 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000102 /* Account.swift */; };
+		A1000203 /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000103 /* Media.swift */; };
+		A1000204 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000104 /* StorageManager.swift */; };
+		A1000205 /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000105 /* WebSocketManager.swift */; };
+		A1000206 /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000106 /* APIManager.swift */; };
+		A1000207 /* UploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000107 /* UploadManager.swift */; };
+		A1000208 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000108 /* NotificationService.swift */; };
+		A1000209 /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000109 /* AudioService.swift */; };
+		A100020A /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010A /* MainTabView.swift */; };
+		A100020B /* ConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010B /* ConversationListView.swift */; };
+		A100020C /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010C /* ChatView.swift */; };
+		A100020D /* MessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010D /* MessageRow.swift */; };
+		A100020E /* AccountSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010E /* AccountSelectionView.swift */; };
+		A100020F /* MediaViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100010F /* MediaViewer.swift */; };
+		A1000210 /* FileViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000110 /* FileViewer.swift */; };
+		A1000211 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000111 /* SettingsView.swift */; };
+		A1000212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000112 /* Assets.xcassets */; };
+		A1000300 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000400 /* PhotosUI.framework */; };
+		A1000301 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000401 /* QuickLook.framework */; };
+		A1000302 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000402 /* AVFoundation.framework */; };
+		A1000303 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000403 /* UserNotifications.framework */; };
+		A1000304 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000404 /* MobileCoreServices.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1000000 /* MyWeChatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyWeChatApp.swift; sourceTree = "<group>"; };
-		A1000002 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
-		A1000004 /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
-		A1000006 /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
-		A1000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A100000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A100000B /* MyWeChat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyWeChat.entitlements; sourceTree = "<group>"; };
-		A100000C /* MyWeChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWeChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000100 /* MyWeChatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyWeChatApp.swift; sourceTree = "<group>"; };
+		A1000101 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		A1000102 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
+		A1000103 /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
+		A1000104 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		A1000105 /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
+		A1000106 /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
+		A1000107 /* UploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadManager.swift; sourceTree = "<group>"; };
+		A1000108 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		A1000109 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
+		A100010A /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A100010B /* ConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListView.swift; sourceTree = "<group>"; };
+		A100010C /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		A100010D /* MessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRow.swift; sourceTree = "<group>"; };
+		A100010E /* AccountSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectionView.swift; sourceTree = "<group>"; };
+		A100010F /* MediaViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaViewer.swift; sourceTree = "<group>"; };
+		A1000110 /* FileViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewer.swift; sourceTree = "<group>"; };
+		A1000111 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A1000112 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1000113 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1000114 /* MyWeChat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyWeChat.entitlements; sourceTree = "<group>"; };
+		A1000115 /* MyWeChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWeChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000400 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
+		A1000401 /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
+		A1000402 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		A1000403 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		A1000404 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A1000010 /* Frameworks */ = {
+		A1000601 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000300 /* PhotosUI.framework in Frameworks */,
+				A1000301 /* QuickLook.framework in Frameworks */,
+				A1000302 /* AVFoundation.framework in Frameworks */,
+				A1000303 /* UserNotifications.framework in Frameworks */,
+				A1000304 /* MobileCoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A1000011 /* MyWeChat */ = {
+		A1000500 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				A1000000 /* MyWeChatApp.swift */,
-				A1000002 /* Models.swift */,
-				A1000004 /* Views.swift */,
-				A1000006 /* WebSocketManager.swift */,
-				A1000008 /* Assets.xcassets */,
-				A100000A /* Info.plist */,
-				A100000B /* MyWeChat.entitlements */,
+				A1000101 /* Message.swift */,
+				A1000102 /* Account.swift */,
+				A1000103 /* Media.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A1000501 /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				A1000104 /* StorageManager.swift */,
+			);
+			path = Database;
+			sourceTree = "<group>";
+		};
+		A1000502 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				A1000105 /* WebSocketManager.swift */,
+				A1000106 /* APIManager.swift */,
+				A1000107 /* UploadManager.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		A1000503 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1000108 /* NotificationService.swift */,
+				A1000109 /* AudioService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A1000504 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A100010A /* MainTabView.swift */,
+				A100010B /* ConversationListView.swift */,
+				A100010C /* ChatView.swift */,
+				A100010D /* MessageRow.swift */,
+				A100010E /* AccountSelectionView.swift */,
+				A100010F /* MediaViewer.swift */,
+				A1000110 /* FileViewer.swift */,
+				A1000111 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A1000505 /* MyWeChat */ = {
+			isa = PBXGroup;
+			children = (
+				A1000100 /* MyWeChatApp.swift */,
+				A1000500 /* Models */,
+				A1000501 /* Database */,
+				A1000502 /* Networking */,
+				A1000503 /* Services */,
+				A1000504 /* Views */,
+				A1000112 /* Assets.xcassets */,
+				A1000113 /* Info.plist */,
+				A1000114 /* MyWeChat.entitlements */,
 			);
 			path = MyWeChat;
 			sourceTree = "<group>";
 		};
-		A1000012 /* Products */ = {
+		A1000506 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A100000C /* MyWeChat.app */,
+				A1000115 /* MyWeChat.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1000013 = {
+		A1000507 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A1000011 /* MyWeChat */,
-				A1000012 /* Products */,
+				A1000400 /* PhotosUI.framework */,
+				A1000401 /* QuickLook.framework */,
+				A1000402 /* AVFoundation.framework */,
+				A1000403 /* UserNotifications.framework */,
+				A1000404 /* MobileCoreServices.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A1000508 = {
+			isa = PBXGroup;
+			children = (
+				A1000505 /* MyWeChat */,
+				A1000507 /* Frameworks */,
+				A1000506 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A100000D /* MyWeChat */ = {
+		A1000700 /* MyWeChat */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1000014 /* Build configuration list for PBXNativeTarget "MyWeChat" */;
+			buildConfigurationList = A1000900 /* Build configuration list for PBXNativeTarget "MyWeChat" */;
 			buildPhases = (
-				A100000F /* Sources */,
-				A1000010 /* Frameworks */,
-				A1000015 /* Resources */,
+				A1000600 /* Sources */,
+				A1000601 /* Frameworks */,
+				A1000602 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -83,25 +193,25 @@
 			);
 			name = MyWeChat;
 			productName = MyWeChat;
-			productReference = A100000C /* MyWeChat.app */;
+			productReference = A1000115 /* MyWeChat.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A1000016 /* Project object */ = {
+		A1000701 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					A100000D = {
+					A1000700 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = A1000017 /* Build configuration list for PBXProject "MyWeChat" */;
+			buildConfigurationList = A1000901 /* Build configuration list for PBXProject "MyWeChat" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -109,43 +219,57 @@
 				en,
 				Base,
 			);
-			mainGroup = A1000013;
-			productRefGroup = A1000012 /* Products */;
+			mainGroup = A1000508;
+			productRefGroup = A1000506 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A100000D /* MyWeChat */,
+				A1000700 /* MyWeChat */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A1000015 /* Resources */ = {
+		A1000602 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000009 /* Assets.xcassets in Resources */,
+				A1000212 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A100000F /* Sources */ = {
+		A1000600 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000001 /* MyWeChatApp.swift in Sources */,
-				A1000003 /* Models.swift in Sources */,
-				A1000005 /* Views.swift in Sources */,
-				A1000007 /* WebSocketManager.swift in Sources */,
+				A1000200 /* MyWeChatApp.swift in Sources */,
+				A1000201 /* Message.swift in Sources */,
+				A1000202 /* Account.swift in Sources */,
+				A1000203 /* Media.swift in Sources */,
+				A1000204 /* StorageManager.swift in Sources */,
+				A1000205 /* WebSocketManager.swift in Sources */,
+				A1000206 /* APIManager.swift in Sources */,
+				A1000207 /* UploadManager.swift in Sources */,
+				A1000208 /* NotificationService.swift in Sources */,
+				A1000209 /* AudioService.swift in Sources */,
+				A100020A /* MainTabView.swift in Sources */,
+				A100020B /* ConversationListView.swift in Sources */,
+				A100020C /* ChatView.swift in Sources */,
+				A100020D /* MessageRow.swift in Sources */,
+				A100020E /* AccountSelectionView.swift in Sources */,
+				A100020F /* MediaViewer.swift in Sources */,
+				A1000210 /* FileViewer.swift in Sources */,
+				A1000211 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		A1000018 /* Debug */ = {
+		A1000800 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -207,7 +331,7 @@
 			};
 			name = Debug;
 		};
-		A1000019 /* Release */ = {
+		A1000801 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -262,7 +386,7 @@
 			};
 			name = Release;
 		};
-		A100001A /* Debug */ = {
+		A1000802 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -292,7 +416,7 @@
 			};
 			name = Debug;
 		};
-		A100001B /* Release */ = {
+		A1000803 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -325,25 +449,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1000014 /* Build configuration list for PBXNativeTarget "MyWeChat" */ = {
+		A1000900 /* Build configuration list for PBXNativeTarget "MyWeChat" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A100001A /* Debug */,
-				A100001B /* Release */,
+				A1000802 /* Debug */,
+				A1000803 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1000017 /* Build configuration list for PBXProject "MyWeChat" */ = {
+		A1000901 /* Build configuration list for PBXProject "MyWeChat" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1000018 /* Debug */,
-				A1000019 /* Release */,
+				A1000800 /* Debug */,
+				A1000801 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A1000016 /* Project object */;
+	rootObject = A1000701 /* Project object */;
 }
