@@ -41,7 +41,7 @@ class WebSocketManager: ObservableObject {
     }
 
     func sendMessage(_ text: String, to targetId: String) {
-        let msg = Message(id: UUID().uuidString, text: text, isFromMe: true, targetId: targetId)
+        let msg = Message(id: UUID().uuidString, conversationId: targetId, text: text, isFromMe: true)
         DispatchQueue.main.async {
             self.messages.append(msg)
         }
@@ -89,7 +89,7 @@ class WebSocketManager: ObservableObject {
                let id = msgDict["id"] as? String,
                let text = msgDict["text"] as? String,
                let targetId = msgDict["targetId"] as? String {
-                let newMsg = Message(id: id, text: text, isFromMe: false, targetId: targetId)
+                let newMsg = Message(id: id, conversationId: targetId, text: text, isFromMe: false)
                 self.messages.append(newMsg)
             }
         default: break
