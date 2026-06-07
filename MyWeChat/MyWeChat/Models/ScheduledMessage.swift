@@ -61,8 +61,8 @@ struct ScheduledMessage: Identifiable, Codable {
         self.messageContent = dict["message_content"] as? String ?? ""
         self.msgType = dict["msg_type"] as? String ?? "text"
         self.mediaURL = dict["media_url"] as? String
-        self.targetAccounts = (dict["target_accounts"] as? String).flatMap { parseJSON($0) } ?? []
-        self.targets = (dict["targets"] as? String).flatMap { parseJSON($0) } ?? []
+        self.targetAccounts = Self.parseJSONArray(dict["target_accounts"] as? String)
+        self.targets = Self.parseJSONArray(dict["targets"] as? String)
         self.sendTime = dict["send_time"] as? String ?? ""
         self.repeatInterval = dict["repeat_interval"] as? Int ?? 0
         self.repeatCount = dict["repeat_count"] as? Int ?? 1
@@ -72,8 +72,9 @@ struct ScheduledMessage: Identifiable, Codable {
         self.nextRun = dict["next_run"] as? String
     }
 
-    private func parseJSON(_ string: String) -> [String]? {
-        try? JSONDecoder().decode([String].self, from: Data(string.utf8))
+    private static func parseJSONArray(_ string: String?) -> [String] {
+        guard let string = string, let data = string.data(using: .utf8) else { return [] }
+        return (try? JSONDecoder().decode([String].self, from: data)) ?? []
     }
 
     // 显示属性
