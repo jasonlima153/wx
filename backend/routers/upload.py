@@ -11,7 +11,7 @@ from core.config import UPLOAD_DIR, UPLOAD_IMAGES_DIR, UPLOAD_VOICES_DIR, UPLOAD
 router = APIRouter()
 
 
-@router.post("/file")
+@router.post("/upload")
 async def upload_file(
     file: UploadFile = File(...),
     account_id: str = Form(""),
@@ -64,7 +64,7 @@ async def upload_file(
     }
 
 
-@router.post("/audio")
+@router.post("/upload/audio")
 async def upload_audio(voice: UploadFile = File(...)):
     """语音专用上传入口（内部转发到通用上传）"""
     return await upload_file(file=voice, msg_type="voice")

@@ -113,11 +113,11 @@ app.add_middleware(
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # ============ 注册路由 ============
-# 账号与设置
-app.include_router(account.router, prefix="/api/account", tags=["Account & Settings"])
+# 账号与设置（前端调用 GET /api/accounts）
+app.include_router(account.router, prefix="/api", tags=["Account & Settings"])
 
-# 文件上传（前端调用 POST /api/upload/file）
-app.include_router(upload.router, prefix="/api/upload", tags=["File Uploads"])
+# 文件上传（前端调用 POST /api/upload）
+app.include_router(upload.router, prefix="/api", tags=["File Uploads"])
 
 # 定时任务（前端调用 /api/scheduled_tasks/*）
 app.include_router(tasks.router, prefix="/api/scheduled_tasks", tags=["Scheduled Tasks"])

@@ -1,7 +1,7 @@
 """
 账号与设置接口
 对应前端: APIClient.fetchAccounts(), SettingsScreen
-路径前缀: /api/account
+路径前缀: /api（在 main.py 中挂载）
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -15,14 +15,12 @@ from core.config import DB_PATH
 router = APIRouter()
 
 
-# ============ 数据库工具 ============
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-# ============ Pydantic 模型 ============
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -44,24 +42,15 @@ class SettingsUpdate(BaseModel):
     auth_token: Optional[str] = None
 
 
-# ============ 接口 ============
-
-@router.post("/login")
+@router.post("/account/login")
 async def login(req: LoginRequest):
     """登录占位，返回模拟 token"""
-    return {
-        "status": "ok",
-        "token": "fake-jwt-token-placeholder",
-        "user_id": str(uuid.uuid4())
-    }
+    return {"status": "ok", "token": "fake-jwt-token-placeholder", "user_id": str(uuid.uuid4())}
 
 
 @router.get("/accounts")
 async def get_accounts():
-    """
-    获取所有账号列表
-    对应前端: api.fetchAccounts() -> GET /api/accounts
-    """
+    """获取所有账号列表 — 对应前端 api.fetchAccounts() -> GET /api/accounts"""
     conn = get_db()
     c = conn.cursor()
     c.execute("SELECT * FROM accounts ORDER BY is_active DESC, last_login DESC")
@@ -103,13 +92,13 @@ async def activate_account(account_id: str):
     return {"status": "ok"}
 
 
-@router.get("/profile")
+@router.get("/account/profile")
 async def get_profile():
     """获取当前用户信息占位"""
     return {"username": "Admin", "avatar": "https://example.com/avatar.jpg"}
 
 
-@router.post("/settings")
+@router.post("/account/settings")
 async def update_settings(settings: SettingsUpdate):
     """更新用户设置占位"""
     return {"status": "ok", "updated_settings": settings.model_dump(exclude_none=True)}
