@@ -14,7 +14,7 @@ struct ScheduleListScreen: View {
                                 Task { await session.deleteSchedule(item.id) }
                             } label: { Text("删除") }
                             Button {
-                                Task { await session.toggleSchedule(id: item.id, enabled: !item.enabled) }
+                                Task { await session.toggleSchedule(item.id, enabled: !item.enabled) }
                             } label: { Text(item.enabled ? "停用" : "启用") }
                         }
                 }
