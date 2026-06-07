@@ -7,9 +7,13 @@ import json
 import os
 import uuid
 import shutil
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import sqlite3
+import asyncio
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.date import DateTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 # ============ 配置 ============
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -71,6 +75,23 @@ def init_db():
         is_pinned INTEGER DEFAULT 0
     )''')
 
+    c.execute('''CREATE TABLE IF NOT EXISTS scheduled_tasks (
+        id TEXT PRIMARY KEY,
+        name TEXT DEFAULT '',
+        message_content TEXT NOT NULL,
+        msg_type TEXT DEFAULT 'text',
+        media_url TEXT,
+        target_accounts TEXT NOT NULL,
+        targets TEXT NOT NULL,
+        send_time TEXT NOT NULL,
+        repeat_interval INTEGER DEFAULT 0,
+        repeat_count INTEGER DEFAULT 1,
+        sent_count INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'pending',
+        created_at TEXT NOT NULL,
+        next_run TEXT
+    )''')
+
     conn.commit()
     conn.close()
 
@@ -110,16 +131,124 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
+# ============ APScheduler 定时任务调度 ============
+scheduler = AsyncIOScheduler()
+
+
+async def execute_scheduled_task(task_id: str):
+    """执行定时群发任务"""
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM scheduled_tasks WHERE id=?", (task_id,))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        return
+
+    task = dict(row)
+    target_accounts = json.loads(task['target_accounts'])
+    targets = json.loads(task['targets'])
+
+    # 对每个账号的每个目标发送消息
+    for account_id in target_accounts:
+        for target in targets:
+            msg_id = str(uuid.uuid4())
+            timestamp = datetime.now().isoformat()
+            content = task['message_content']
+            msg_type = task['msg_type']
+            media_url = task['media_url'] or ''
+
+            c.execute("""INSERT INTO messages
+                (id, sender, receiver, content, msg_type, media_url, timestamp, account_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                      (msg_id, account_id, target, content, msg_type, media_url, timestamp, account_id))
+
+            # 更新会话
+            display_msg = content if msg_type == "text" else f"[{msg_type}]"
+            c.execute("SELECT id FROM conversations WHERE name=? AND account_id=?", (target, account_id))
+            conv = c.fetchone()
+            if conv:
+                c.execute("UPDATE conversations SET last_message=?, last_time=?, unread_count=unread_count+1 WHERE id=?",
+                          (display_msg, timestamp, conv['id']))
+            else:
+                conv_id = str(uuid.uuid4())
+                c.execute("INSERT INTO conversations (id, name, last_message, last_time, unread_count, account_id) VALUES (?, ?, ?, ?, ?, ?)",
+                          (conv_id, target, display_msg, timestamp, 1, account_id))
+
+            # 广播
+            await manager.broadcast({
+                "type": "new_message",
+                "message_id": msg_id,
+                "sender": account_id,
+                "receiver": target,
+                "content": content,
+                "msg_type": msg_type,
+                "media_url": media_url,
+                "timestamp": timestamp,
+                "account_id": account_id
+            })
+
+    # 更新任务状态
+    new_sent = task['sent_count'] + 1
+    new_status = 'completed' if new_sent >= task['repeat_count'] else 'running'
+
+    if new_status == 'running' and task['repeat_interval'] > 0:
+        next_run = datetime.now() + timedelta(seconds=task['repeat_interval'])
+        c.execute("UPDATE scheduled_tasks SET sent_count=?, status=?, next_run=? WHERE id=?",
+                  (new_sent, new_status, next_run.isoformat(), task_id))
+        # 调度下一次执行
+        scheduler.add_job(
+            execute_scheduled_task,
+            trigger=DateTrigger(run_date=next_run),
+            args=[task_id],
+            id=f"task_{task_id}_{new_sent}"
+        )
+    else:
+        c.execute("UPDATE scheduled_tasks SET sent_count=?, status=?, next_run=NULL WHERE id=?",
+                  (new_sent, new_status, task_id))
+
+    conn.commit()
+    conn.close()
+    print(f"📨 定时任务 {task_id} 执行完成 (第 {new_sent}/{task['repeat_count']} 次)")
+
+
+def restore_scheduled_tasks():
+    """服务启动时恢复数据库中未完成的定时任务"""
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM scheduled_tasks WHERE status IN ('pending', 'running') AND next_run IS NOT NULL")
+    rows = c.fetchall()
+    for row in rows:
+        task = dict(row)
+        try:
+            next_run = datetime.fromisoformat(task['next_run'])
+            if next_run > datetime.now():
+                scheduler.add_job(
+                    execute_scheduled_task,
+                    trigger=DateTrigger(run_date=next_run),
+                    args=[task['id']],
+                    id=f"task_{task['id']}_{task['sent_count']}",
+                    replace_existing=True
+                )
+                print(f"🔄 恢复定时任务: {task['id']} -> {next_run}")
+        except Exception as e:
+            print(f"❌ 恢复任务失败 {task['id']}: {e}")
+    conn.close()
+
+
 # ============ 应用生命周期 ============
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
-    print("🚀 数据库初始化完成")
+    restore_scheduled_tasks()
+    scheduler.start()
+    print("🚀 服务启动完成（含定时任务调度器）")
     yield
+    scheduler.shutdown()
     print("👋 服务关闭")
 
 
-app = FastAPI(title="WeChat Server", version="2.0", lifespan=lifespan)
+app = FastAPI(title="WeChat Server", version="2.1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -129,7 +258,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 静态文件服务 - 上传的文件可通过 HTTP 访问
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
@@ -137,7 +265,7 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "version": "2.0", "message": "WeChat Server is running"}
+    return {"status": "ok", "version": "2.1", "message": "WeChat Server is running"}
 
 
 # --- 账号管理 ---
@@ -232,7 +360,6 @@ async def mark_message_read(msg_id: str):
 # --- 文件上传 ---
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...), account_id: str = Form(""), msg_type: str = Form("file")):
-    # 根据类型选择存储目录
     if msg_type == "image":
         save_dir = os.path.join(UPLOAD_DIR, "images")
         ext = os.path.splitext(file.filename)[1] or ".jpg"
@@ -247,23 +374,14 @@ async def upload_file(file: UploadFile = File(...), account_id: str = Form(""), 
     filename = f"{file_id}{ext}"
     filepath = os.path.join(save_dir, filename)
 
-    # 保存文件
     file_size = 0
     with open(filepath, "wb") as f:
         while chunk := await file.read(8192):
             f.write(chunk)
             file_size += len(chunk)
 
-    # 返回可访问的 URL
     media_url = f"/uploads/{msg_type}s/{filename}"
-
-    return {
-        "status": "ok",
-        "media_url": media_url,
-        "file_name": file.filename,
-        "file_size": file_size,
-        "file_id": file_id
-    }
+    return {"status": "ok", "media_url": media_url, "file_name": file.filename, "file_size": file_size, "file_id": file_id}
 
 
 # --- 发送消息 ---
@@ -283,13 +401,11 @@ async def send_message(request: dict):
 
     conn = get_db()
     c = conn.cursor()
-
     c.execute("""INSERT INTO messages
         (id, sender, receiver, content, msg_type, media_url, file_name, file_size, voice_duration, timestamp, account_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
               (msg_id, sender, receiver, content, msg_type, media_url, file_name, file_size, voice_duration, timestamp, account_id))
 
-    # 更新会话
     display_msg = content if msg_type == "text" else f"[{msg_type}]"
     c.execute("SELECT id FROM conversations WHERE name=? AND account_id=?", (receiver, account_id))
     row = c.fetchone()
@@ -304,23 +420,123 @@ async def send_message(request: dict):
     conn.commit()
     conn.close()
 
-    # 广播消息
     await manager.broadcast({
-        "type": "new_message",
-        "message_id": msg_id,
-        "sender": sender,
-        "receiver": receiver,
-        "content": content,
-        "msg_type": msg_type,
-        "media_url": media_url,
-        "file_name": file_name,
-        "file_size": file_size,
-        "voice_duration": voice_duration,
-        "timestamp": timestamp,
-        "account_id": account_id
+        "type": "new_message", "message_id": msg_id, "sender": sender, "receiver": receiver,
+        "content": content, "msg_type": msg_type, "media_url": media_url,
+        "file_name": file_name, "file_size": file_size, "voice_duration": voice_duration,
+        "timestamp": timestamp, "account_id": account_id
     })
-
     return {"status": "ok", "message_id": msg_id}
+
+
+# ============ 定时群发任务 API ============
+
+@app.get("/api/scheduled_tasks")
+async def get_scheduled_tasks():
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM scheduled_tasks ORDER BY created_at DESC")
+    rows = c.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+@app.post("/api/scheduled_tasks")
+async def create_scheduled_task(request: dict):
+    task_id = str(uuid.uuid4())
+    name = request.get("name", "")
+    message_content = request.get("message_content", "")
+    msg_type = request.get("msg_type", "text")
+    media_url = request.get("media_url", "")
+    target_accounts = json.dumps(request.get("target_accounts", []))
+    targets = json.dumps(request.get("targets", []))
+    send_time = request.get("send_time", datetime.now().isoformat())
+    repeat_interval = request.get("repeat_interval", 0)
+    repeat_count = request.get("repeat_count", 1)
+    created_at = datetime.now().isoformat()
+
+    # 计算下次执行时间
+    try:
+        send_dt = datetime.fromisoformat(send_time)
+        if send_dt <= datetime.now():
+            send_dt = datetime.now() + timedelta(seconds=10)
+    except Exception:
+        send_dt = datetime.now() + timedelta(seconds=10)
+
+    next_run = send_dt.isoformat()
+
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("""INSERT INTO scheduled_tasks
+        (id, name, message_content, msg_type, media_url, target_accounts, targets,
+         send_time, repeat_interval, repeat_count, sent_count, status, created_at, next_run)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'pending', ?, ?)""",
+              (task_id, name, message_content, msg_type, media_url, target_accounts, targets,
+               send_time, repeat_interval, repeat_count, created_at, next_run))
+    conn.commit()
+    conn.close()
+
+    # 调度第一次执行
+    scheduler.add_job(
+        execute_scheduled_task,
+        trigger=DateTrigger(run_date=send_dt),
+        args=[task_id],
+        id=f"task_{task_id}_0"
+    )
+
+    return {"status": "ok", "id": task_id, "next_run": next_run}
+
+
+@app.delete("/api/scheduled_tasks/{task_id}")
+async def delete_scheduled_task(task_id: str):
+    # 移除调度器中的所有相关 job
+    for job in scheduler.get_jobs():
+        if f"task_{task_id}_" in job.id:
+            scheduler.remove_job(job.id)
+
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("DELETE FROM scheduled_tasks WHERE id=?", (task_id,))
+    conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
+
+@app.put("/api/scheduled_tasks/{task_id}/pause")
+async def pause_scheduled_task(task_id: str):
+    for job in scheduler.get_jobs():
+        if f"task_{task_id}_" in job.id:
+            scheduler.pause_job(job.id)
+
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("UPDATE scheduled_tasks SET status='paused' WHERE id=?", (task_id,))
+    conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
+
+@app.put("/api/scheduled_tasks/{task_id}/resume")
+async def resume_scheduled_task(task_id: str):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM scheduled_tasks WHERE id=?", (task_id,))
+    row = c.fetchone()
+    if row:
+        task = dict(row)
+        next_run = datetime.now() + timedelta(seconds=max(task['repeat_interval'], 10))
+        c.execute("UPDATE scheduled_tasks SET status='running', next_run=? WHERE id=?", (next_run.isoformat(), task_id))
+        conn.commit()
+
+        scheduler.add_job(
+            execute_scheduled_task,
+            trigger=DateTrigger(run_date=next_run),
+            args=[task_id],
+            id=f"task_{task_id}_resume",
+            replace_existing=True
+        )
+    conn.close()
+    return {"status": "ok"}
 
 
 # ============ WebSocket ============
@@ -370,18 +586,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     conn.close()
 
                     await manager.broadcast({
-                        "type": "new_message",
-                        "message_id": msg_id,
-                        "sender": sender,
-                        "receiver": receiver,
-                        "content": content,
-                        "msg_type": m_type,
-                        "media_url": media_url,
-                        "file_name": file_name,
-                        "file_size": file_size,
-                        "voice_duration": voice_duration,
-                        "timestamp": timestamp,
-                        "account_id": account_id
+                        "type": "new_message", "message_id": msg_id, "sender": sender, "receiver": receiver,
+                        "content": content, "msg_type": m_type, "media_url": media_url,
+                        "file_name": file_name, "file_size": file_size, "voice_duration": voice_duration,
+                        "timestamp": timestamp, "account_id": account_id
                     }, exclude=client_id)
 
                 elif msg_type == "ping":

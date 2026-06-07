@@ -12,6 +12,12 @@ struct MainTabView: View {
                     Text("微信")
                 }
 
+            ScheduledTasksView()
+                .tabItem {
+                    Image(systemName: "clock.fill")
+                    Text("群发")
+                }
+
             AccountSelectionView()
                 .tabItem {
                     Image(systemName: "person.2.fill")
