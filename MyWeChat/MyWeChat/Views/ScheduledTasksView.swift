@@ -95,7 +95,7 @@ struct ScheduledTaskRowView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(statusBgColor)
-                    .cornerRadius(Capsule().radius / 2)
+                    .clipShape(Capsule())
             }
 
             // 消息预览

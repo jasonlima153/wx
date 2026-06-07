@@ -205,10 +205,13 @@ struct AccountPickerView: View {
         NavigationView {
             List {
                 ForEach(accounts) { account in
-                    Button(action: toggleAccount(account)) {
+                    Button {
+                        toggleAccount(account)
+                    } label: {
                         HStack {
-                            Image(systemName: account.isSelected ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(account.isSelected ? .green : .gray)
+                            let isSel = selectedAccounts.contains { $0.id == account.id }
+                            Image(systemName: isSel ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(isSel ? .green : .gray)
                             Image(systemName: "person.circle.fill")
                                 .foregroundColor(.blue)
                             VStack(alignment: .leading, spacing: 2) {
@@ -231,10 +234,6 @@ struct AccountPickerView: View {
             )
             .onAppear { loadAccounts() }
         }
-    }
-
-    private var isSelected: (WeChatAccount) -> Bool {
-        { account in selectedAccounts.contains { $0.id == account.id } }
     }
 
     private func toggleAccount(_ account: WeChatAccount) {
@@ -286,7 +285,9 @@ struct TargetPickerView: View {
 
                 Section(header: Text("快速选择")) {
                     ForEach(quickTargets, id: \.self) { target in
-                        Button(action: toggleTarget(target)) {
+                        Button {
+                            toggleTarget(target)
+                        } label: {
                             HStack {
                                 Image(systemName: selectedTargets.contains(target) ? "checkmark.circle.fill" : "circle")
                                     .foregroundColor(selectedTargets.contains(target) ? .green : .gray)
