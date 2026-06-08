@@ -8,7 +8,7 @@ struct AccountScreen: View {
             List {
                 ForEach(session.accounts) { account in
                     Button {
-                        session.selectedAccountID = String(account.id)
+                        session.selectedAccountID = account.id
                         session.persistAll()
                     } label: {
                         HStack {
@@ -20,7 +20,7 @@ struct AccountScreen: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            if String(account.id) == session.selectedAccountID {
+                            if account.id == session.selectedAccountID {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.blue)
                             }

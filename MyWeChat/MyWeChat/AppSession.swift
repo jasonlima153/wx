@@ -162,6 +162,7 @@ final class AppSession: ObservableObject {
         )
 
         // 优先通过 WebSocket 发送（实时性更好）
+        // 注释掉本地气泡，等服务器广播回来再显示，防止双重气泡
         if ws.isConnected {
             let payload: [String: Any] = [
                 "type": "message",
@@ -173,21 +174,7 @@ final class AppSession: ObservableObject {
                 "account_id": selectedAccountID
             ]
             ws.send(payload)
-
-            // 本地立即显示发送的消息
-            let localMsg = ChatMessage(
-                id: UUID().uuidString,
-                sender: selectedAccountID,
-                receiver: selectedChatID,
-                content: text,
-                msg_type: type.rawValue,
-                media_url: mediaURL?.absoluteString,
-                timestamp: ISO8601DateFormatter().string(from: .now)
-            )
-            var current = messages[selectedChatID, default: []]
-            current.append(localMsg)
-            messages[selectedChatID] = current
-            storage.saveMessages(messages)
+            // 不再本地立即显示，等服务器广播回来
         } else {
             // WebSocket 未连接，走 REST API
             do {
