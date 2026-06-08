@@ -21,7 +21,7 @@ struct ChatListScreen: View {
                 ForEach(searchResults) { chat in
                     // 点击跳转到聊天详情页
                     NavigationLink {
-                        ChatDetailScreen(chatTitle: chat.title, chatID: chat.id)
+                        ChatDetailScreen(chatTitle: chat.title, chatID: String(chat.id))
                     } label: {
                         HStack(spacing: 12) {
                             AvatarCircle(text: chat.title)
