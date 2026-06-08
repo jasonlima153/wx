@@ -1,6 +1,17 @@
 import Foundation
 import Combine
 
+// WebSocketManager 内部使用的消息事件类型（避免与 AppSession 中的定义冲突）
+struct WSMessageEvent: Codable {
+    enum Kind: String, Codable { case message, chatList, accountList, scheduleList, status }
+    var kind: Kind
+    var text: String?
+    var message: ChatMessage?
+    var chats: [Chat]?
+    var accounts: [Account]?
+    var schedules: [ScheduleTask]?
+}
+
 final class WebSocketManager: ObservableObject {
     private var webSocketTask: URLSessionWebSocketTask?
     private var cancellables = Set<AnyCancellable>()
