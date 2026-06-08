@@ -34,7 +34,7 @@ struct ChatListScreen: View {
                             }
                             Spacer()
                             if chat.unread_count > 0 {
-                                Text("\(unread)")
+                                Text("\(chat.unread_count)")
                                     .font(.caption.bold())
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
