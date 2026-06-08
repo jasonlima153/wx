@@ -1,39 +1,26 @@
 import SwiftUI
 
 struct RootView: View {
-    enum TabItem: Hashable {
-        case chats, accounts, schedules, settings
-    }
-
-    @EnvironmentObject private var session: AppSession
-    @State private var tab: TabItem = .chats
+    @StateObject private var session = AppSession()
 
     var body: some View {
-        TabView(selection: $tab) {
+        TabView {
+            // 1. 会话列表页 (原有的，保持不变，它会自动接收并展现独立房间)
             ChatListScreen()
-                .tabItem { Label("会话", systemImage: "bubble.left.and.bubble.right") }
-                .tag(TabItem.chats)
-
+                .tabItem { Label("微信会话", systemImage: "message.fill") }
+            
+            // 2. 通讯录页 (已完美替换为 PC 微信真实联系人)
             AccountScreen()
-                .tabItem { Label("通讯录", systemImage: "person.crop.circle") }
-                .tag(TabItem.accounts)
-
+                .tabItem { Label("通讯录", systemImage: "person.crop.circle.fill") }
+            
+            // 3. 定时群发中心 (全新深度定制页面)
             ScheduleListScreen()
-                .tabItem { Label("定时", systemImage: "clock") }
-                .tag(TabItem.schedules)
-
+                .tabItem { Label("定时功能", systemImage: "clock.fill") }
+            
+            // 4. 系统设置页 (原有的，用于看网络连接状态)
             SettingsScreen()
-                .tabItem { Label("设置", systemImage: "gearshape") }
-                .tag(TabItem.settings)
+                .tabItem { Label("设置", systemImage: "gearshape.fill") }
         }
-        .overlay(alignment: .top) {
-            if let err = session.lastError {
-                ErrorBanner(text: err)
-                    .padding(.top, 8)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-            }
-        }
-        .onAppear { session.connect() }
-        .onDisappear { session.persistAll() }
+        .environmentObject(session) // 🌟 极其重要：将响应式核心注入所有子页面
     }
 }

@@ -4,24 +4,46 @@ struct AccountScreen: View {
     @EnvironmentObject private var session: AppSession
     @State private var searchText = ""
 
+    // 自动过滤并按"群聊"和"好友"分类
+    var filteredContacts: [Contact] {
+        if searchText.isEmpty { return session.contacts }
+        return session.contacts.filter {
+            $0.nickname.contains(searchText) || $0.remark.contains(searchText) || $0.wx_id.contains(searchText)
+        }
+    }
+
     var body: some View {
         NavigationStack {
             List {
-                // 占位 UI：等我们搞定本地电脑的 Python 脚本，就把真实好友列在这里
-                Section("微信好友与群聊") {
-                    HStack {
-                        Image(systemName: "arrow.down.circle.fill")
-                            .foregroundColor(.green)
-                            .font(.title2)
-                        Text("等待接入 PC 微信通讯录...")
-                            .foregroundColor(.secondary)
-                            .padding(.leading, 8)
+                Section("微信群聊与好友名单") {
+                    ForEach(filteredContacts) { contact in
+                        NavigationLink(destination: ChatDetailScreen(
+                            chatTitle: contact.wx_id,
+                            chatNickname: contact.isGroup ? "👥 \(contact.nickname)" : (contact.remark.isEmpty ? contact.nickname : contact.remark)
+                        )) {
+                            HStack(spacing: 14) {
+                                Image(systemName: contact.isGroup ? "person.3.sequence.fill" : "person.crop.circle.fill")
+                                    .resizable()
+                                    .frame(width: 38, height: 38)
+                                    .foregroundColor(contact.isGroup ? .blue : .green)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(contact.remark.isEmpty ? contact.nickname : contact.remark)
+                                        .font(.system(size: 16))
+                                    Text(contact.wx_id)
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
                     }
-                    .padding(.vertical, 8)
                 }
             }
             .navigationTitle("通讯录")
-            .searchable(text: $searchText, prompt: "搜索联系人")
+            .searchable(text: $searchText, prompt: "搜索联系人或群聊")
+            .task {
+                await session.loadRealContacts() // 打开时拉取最新电脑好友
+            }
         }
     }
 }

@@ -1,117 +1,141 @@
 import SwiftUI
 
 struct ChatDetailScreen: View {
-    @EnvironmentObject private var session: AppSession
-    var chatTitle: String = "聊天"
-    var chatID: String = ""
+    @EnvironmentObject var session: AppSession
+    let chatTitle: String       // 房间 ID (好友wxid或群chatroom ID)
+    let chatNickname: String    // 映射后的好看名字
+    
     @State private var inputText: String = ""
-    @State private var pickerPresented = false
-    @State private var selectedMedia: MediaSelection?
-    @StateObject private var recorder = AudioRecorder()
-
-    private var activeChatID: String {
-        chatID.isEmpty ? session.selectedChatID : chatID
-    }
-
-    private var currentMessages: [ChatMessage] {
-        return session.messages[activeChatID, default: []]
+    
+    // 动态绑定到 session，数据一变，页面立刻自动重绘！
+    var currentMessages: [Message] {
+        return session.messages[chatTitle] ?? []
     }
 
     var body: some View {
         VStack(spacing: 0) {
+            // 1. 聊天气泡滚动区
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(spacing: 10) {
+                    LazyVStack(spacing: 14) {
                         ForEach(currentMessages) { msg in
-                            MessageRow(message: msg)
-                                .id(msg.id)
+                            HStack(alignment: .top) {
+                                if msg.isFromMe {
+                                    Spacer()
+                                    // 我发的绿色气泡
+                                    Text(msg.text ?? "")
+                                        .font(.system(size: 16))
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 10)
+                                        .background(Color(red: 0.57, green: 0.89, blue: 0.45)) // 微信经典绿
+                                        .foregroundColor(.black)
+                                        .cornerRadius(6)
+                                    
+                                    Image(systemName: "person.crop.square.fill")
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
+                                        .foregroundColor(.blue)
+                                        .cornerRadius(4)
+                                } else {
+                                    // 对方发的灰色方形头像
+                                    Image(systemName: "person.crop.square.fill")
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
+                                        .foregroundColor(.gray)
+                                        .cornerRadius(4)
+                                    
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        // 如果是群聊，额外显示一下群成员名字前缀
+                                        if chatTitle.hasSuffix("@chatroom") {
+                                            Text(msg.sender)
+                                                .font(.system(size: 11))
+                                                .foregroundColor(.secondary)
+                                        }
+                                        
+                                        // 对方的白色气泡
+                                        Text(msg.text ?? "")
+                                            .font(.system(size: 16))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 10)
+                                            .background(Color(.systemBackground))
+                                            .foregroundColor(.primary)
+                                            .cornerRadius(6)
+                                            .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                            .padding(.horizontal, 12)
+                            .id(msg.id)
                         }
                     }
                     .padding(.vertical, 12)
-                    .padding(.horizontal, 12)
                 }
-                .onChange(of: session.messages[activeChatID]?.count ?? 0) { _ in
+                .background(Color(.systemGroupedBackground)) // 微信淡灰色底色
+                // ⭐️ 核心：新消息一到，自动平滑滚到底部
+                .onChange(of: currentMessages.count) { _ in
                     if let last = currentMessages.last {
                         withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
                     }
                 }
-            }
-
-            Divider()
-
-            VStack(spacing: 10) {
-                HStack(spacing: 10) {
-                    Button { pickerPresented = true } label: {
-                        Image(systemName: "photo.on.rectangle")
-                    }
-                    Button {
-                        Task {
-                            if recorder.isRecording {
-                                recorder.stop()
-                                if let url = recorder.recordedFileURL,
-                                   let data = try? Data(contentsOf: url) {
-                                    if let uploaded = await session.uploadMedia(data, filename: url.lastPathComponent, mimeType: "audio/m4a") {
-                                        await session.sendMessage(type: .voice, text: "语音消息", mediaURL: uploaded)
-                                    }
-                                }
-                            } else {
-                                recorder.start()
-                            }
-                        }
-                    } label: {
-                        Image(systemName: recorder.isRecording ? "stop.circle" : "mic.circle")
-                    }
-                    TextField("输入消息", text: $inputText, axis: .vertical)
-                        .textFieldStyle(.roundedBorder)
-
-                    Button("发送") {
-                        let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-                        guard !text.isEmpty else { return }
-                        Task {
-                            await session.sendMessage(type: .text, text: text)
-                            inputText = ""
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
+                .onAppear {
+                    session.selectedChatID = chatTitle
+                    if let last = currentMessages.last { proxy.scrollTo(last.id, anchor: .bottom) }
                 }
-
-                if let selectedMedia {
-                    HStack {
-                        Text(selectedMedia.fileName)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                    }
+                .onDisappear {
+                    session.selectedChatID = nil
                 }
             }
-            .padding()
+            
+            // 2. 底部输入框
+            HStack(spacing: 12) {
+                TextField("输入消息...", text: $inputText)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(6)
+                
+                Button(action: sendMessage) {
+                    Text("发送")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                        .background(inputText.isEmpty ? Color.gray : Color.green)
+                        .cornerRadius(6)
+                }
+                .disabled(inputText.isEmpty)
+            }
+            .padding(12)
+            .background(Color(.systemBackground))
         }
-        .navigationTitle(chatTitle)
+        .navigationTitle(chatNickname)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            if !chatID.isEmpty {
-                session.selectedChatID = chatID
-                session.persistAll()
-            }
-        }
-        .sheet(isPresented: $pickerPresented) {
-            MediaPicker { result in
-                switch result {
-                case .success(let media):
-                    selectedMedia = media
-                    Task {
-                        if let data = try? Data(contentsOf: media.url),
-                           let uploaded = await session.uploadMedia(data, filename: media.fileName, mimeType: media.mimeType) {
-                            let type: ChatMessage.MessageType = media.kind == .image ? .image : .voice
-                            await session.sendMessage(type: type, text: media.fileName, mediaURL: uploaded)
-                            selectedMedia = nil
-                        }
-                    }
-                case .failure(let error):
-                    session.lastError = error.localizedDescription
-                }
-                pickerPresented = false
-            }
-        }
+    }
+    
+    func sendMessage() {
+        let text = inputText
+        inputText = "" // 瞬间清空输入框
+        
+        let newMsg = Message(
+            id: UUID().uuidString,
+            sender: "2",          // 我的号
+            receiver: chatTitle,  // 好友号或群号
+            text: text,
+            msg_type: "text",
+            timestamp: "\(Int(Date().timeIntervalSince1970))",
+            account_id: "2"
+        )
+        
+        // 瞬间在手机本地画出气泡
+        session.handleIncomingMessage(newMsg)
+        
+        // 丢给中转服务器
+        guard let url = URL(string: "http://120.48.88.19:8000/api/send") else { return }
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try? JSONEncoder().encode(newMsg)
+        URLSession.shared.dataTask(with: req).resume()
     }
 }

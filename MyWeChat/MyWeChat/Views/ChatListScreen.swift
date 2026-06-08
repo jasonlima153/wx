@@ -4,14 +4,14 @@ struct ChatListScreen: View {
     @EnvironmentObject private var session: AppSession
     @State private var searchText = ""
 
-    // 搜索过滤
-    var searchResults: [Chat] {
+    // 搜索过滤（适配新的 ChatConversation 模型）
+    var searchResults: [ChatConversation] {
         if searchText.isEmpty {
             return session.chats
         }
         return session.chats.filter {
-            $0.title.localizedCaseInsensitiveContains(searchText) ||
-            $0.subtitle.localizedCaseInsensitiveContains(searchText)
+            ($0.nickname ?? $0.title).localizedCaseInsensitiveContains(searchText) ||
+            ($0.last_message ?? "").localizedCaseInsensitiveContains(searchText)
         }
     }
 
@@ -19,22 +19,24 @@ struct ChatListScreen: View {
         NavigationStack {
             List {
                 ForEach(searchResults) { chat in
-                    // 点击跳转到聊天详情页
                     NavigationLink {
-                        ChatDetailScreen(chatTitle: chat.title, chatID: chat.title)
+                        ChatDetailScreen(
+                            chatTitle: chat.title,
+                            chatNickname: chat.nickname ?? chat.title
+                        )
                     } label: {
                         HStack(spacing: 12) {
-                            AvatarCircle(text: chat.title)
+                            AvatarCircle(text: chat.nickname ?? chat.title)
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(chat.title).font(.headline)
-                                Text(chat.subtitle)
+                                Text(chat.nickname ?? chat.title).font(.headline)
+                                Text(chat.last_message ?? "暂无消息")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
                             }
                             Spacer()
-                            if let unread = chat.unread_count, unread > 0 {
-                                Text("\(unread)")
+                            if chat.unread_count > 0 {
+                                Text("\(chat.unread_count)")
                                     .font(.caption.bold())
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
@@ -45,7 +47,7 @@ struct ChatListScreen: View {
                     }
                 }
             }
-            .navigationTitle("会话")
+            .navigationTitle("微信会话")
             .searchable(text: $searchText, prompt: "搜索联系人或群组")
             .refreshable {
                 await refreshConversations()
@@ -55,14 +57,10 @@ struct ChatListScreen: View {
 
     // 下拉刷新：从后端拉取最新会话列表
     private func refreshConversations() async {
-        do {
-            let updated = try await session.api.fetchConversations(accountID: session.selectedAccountID)
-            if !updated.isEmpty {
-                session.chats = updated
-                session.storage.saveChats(updated)
-            }
-        } catch {
-            session.lastError = "刷新失败: \(error.localizedDescription)"
+        guard let url = URL(string: "http://120.48.88.19:8000/api/conversations?account_id=\(session.selectedAccountID)") else { return }
+        if let (data, _) = try? await URLSession.shared.data(from: url),
+           let decoded = try? JSONDecoder().decode([ChatConversation].self, from: data) {
+            session.chats = decoded
         }
     }
 }
