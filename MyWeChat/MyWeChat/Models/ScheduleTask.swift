@@ -23,7 +23,7 @@ struct ScheduleTask: Identifiable, Codable, Hashable {
     var summary: String { message_content }
     var enabled: Bool { status != "paused" && status != "completed" }
     var sendAt: Date {
-        if let ts = send_time, let d = ISO8601DateFormatter().date(from: ts) { return d }
+        if let d = ISO8601DateFormatter().date(from: send_time) { return d }
         return .now
     }
     var repeatInterval: TimeInterval { TimeInterval(repeat_interval) }

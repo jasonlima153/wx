@@ -19,7 +19,20 @@ struct SendMessageResponse: Codable {
     var createdAt: Date
 
     var toMessage: ChatMessage {
-        ChatMessage(id: id, chatID: chatID, senderID: senderID, isFromMe: isFromMe, type: type, text: text, mediaURLString: mediaURLString, createdAt: createdAt)
+        ChatMessage(
+            id: id,
+            sender: senderID,
+            receiver: chatID,
+            content: text,
+            msg_type: type.rawValue,
+            media_url: mediaURLString,
+            file_name: nil,
+            file_size: nil,
+            voice_duration: nil,
+            timestamp: ISO8601DateFormatter().string(from: createdAt),
+            account_id: nil,
+            is_read: 1
+        )
     }
 }
 

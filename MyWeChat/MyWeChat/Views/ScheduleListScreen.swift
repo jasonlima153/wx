@@ -57,7 +57,7 @@ struct ScheduleRow: View {
             Text(task.summary)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text("首次：\(task.sendAt.formatted(date: .abbreviated, time: .shortened))  循环：\(task.repeatCount) 次  间隔：\(Int(task.repeatInterval)) 秒")
+            Text("首次：\(task.sendAt.formatted(date: .abbreviated, time: .shortened))  循环：\(task.repeat_count) 次  间隔：\(Int(task.repeatInterval)) 秒")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
