@@ -16,6 +16,28 @@ struct SettingsScreen: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("当前受控微信") {
+                    if session.accounts.isEmpty {
+                        Text("暂无微信账号").foregroundStyle(.secondary)
+                    } else {
+                        Picker("选择微信", selection: $session.selectedAccountID) {
+                            ForEach(session.accounts) { account in
+                                Text(account.nickname).tag(account.id)
+                            }
+                        }
+                        .onChange(of: session.selectedAccountID) { _ in
+                            session.persistAll()
+                            // 切换账号后自动刷新外面的会话列表
+                            Task {
+                                do {
+                                    let updated = try await session.api.fetchConversations(accountID: session.selectedAccountID)
+                                    session.chats = updated
+                                } catch {}
+                            }
+                        }
+                    }
+                }
+
                 Section("服务器") {
                     TextField("API 地址", text: $serverBaseURL)
                         .textInputAutocapitalization(.never)
