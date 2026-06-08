@@ -20,7 +20,7 @@ struct Message: Identifiable, Codable, Equatable {
     let id: String
     let sender: String      // 发送者的 wxid（如果是群聊，代表具体发言人）
     let receiver: String    // 接收者的 wxid（如果是群聊，代表群ID）
-    let text: String?
+    let content: String?    // ⚠️ 和服务器对接的字段名
     let msg_type: String
     let timestamp: String
     let account_id: String
@@ -72,20 +72,44 @@ struct WSInboundEvent: Codable {
 
 @MainActor
 class AppSession: ObservableObject {
-    @Published var chats: [ChatConversation] = []
-    @Published var messages: [String: [Message]] = [:]   // Key 是独立房间的 ID (wxid 或群 ID)
-    @Published var contacts: [Contact] = []              // 真实通讯录
-    @Published var scheduledTasks: [ScheduledTask] = []  // 定时任务列表
+    @Published var chats: [ChatConversation] = [] {
+        didSet { saveData(key: "saved_chats", data: chats) }
+    }
+    @Published var messages: [String: [Message]] = [:] {
+        didSet { saveData(key: "saved_messages", data: messages) }
+    }
+    @Published var contacts: [Contact] = [] {
+        didSet { saveData(key: "saved_contacts", data: contacts) }
+    }
+    @Published var scheduledTasks: [ScheduledTask] = []
     @Published var selectedAccountID: String = "2"
     @Published var isConnected: Bool = false
     @Published var lastError: String = ""
     
-    var selectedChatID: String? = nil // 当前正处于哪个聊天页面
+    var selectedChatID: String? = nil
     private var webSocketTask: URLSessionWebSocketTask?
     
     init() {
-        // 初始化时自动连接服务器
+        // 开机瞬间，从手机硬盘读取历史记录
+        if let data = UserDefaults.standard.data(forKey: "saved_chats"),
+           let decoded = try? JSONDecoder().decode([ChatConversation].self, from: data) {
+            self.chats = decoded
+        }
+        if let data = UserDefaults.standard.data(forKey: "saved_messages"),
+           let decoded = try? JSONDecoder().decode([String: [Message]].self, from: data) {
+            self.messages = decoded
+        }
+        if let data = UserDefaults.standard.data(forKey: "saved_contacts"),
+           let decoded = try? JSONDecoder().decode([Contact].self, from: data) {
+            self.contacts = decoded
+        }
         connectWebSocket()
+    }
+    
+    private func saveData<T: Encodable>(key: String, data: T) {
+        if let encoded = try? JSONEncoder().encode(data) {
+            UserDefaults.standard.set(encoded, forKey: key)
+        }
     }
     
     // ⭐️ 核心：连接 WebSocket 实现秒回，免手动刷新
@@ -130,40 +154,35 @@ class AppSession: ObservableObject {
                 id: event.id ?? UUID().uuidString,
                 sender: event.sender ?? "",
                 receiver: event.receiver ?? "",
-                text: event.content,
+                content: event.content,
                 msg_type: event.msg_type ?? "text",
                 timestamp: event.timestamp ?? "\(Int(Date().timeIntervalSince1970))",
                 account_id: "2"
             )
             
-            // 🌟 核心：判定这条消息应该塞进哪个独立的聊天房间
-            // 如果是我发出的，塞进接收方房间；如果是群消息，塞进群房间(receiver)；如果是私聊别人发的，塞进发送方房间(sender)
             let isGroupMessage = event.receiver?.hasSuffix("@chatroom") ?? false
             let roomId = msg.isFromMe ? msg.receiver : (isGroupMessage ? msg.receiver : msg.sender)
             
-            // 1. 动态插入消息到对应的房间
             if messages[roomId] == nil { messages[roomId] = [] }
             if !(messages[roomId]?.contains(where: { $0.id == msg.id }) ?? false) {
                 messages[roomId]?.append(msg)
             }
             
-            // 2. 联动刷新外面的会话列表，并将房间顶到最上面
             if let idx = chats.firstIndex(where: { $0.title == roomId }) {
                 var updated = chats[idx]
-                updated.last_message = msg.text
+                updated.last_message = msg.content
                 updated.last_time = msg.timestamp
                 if selectedChatID != roomId { updated.unread_count += 1 }
                 chats.remove(at: idx)
                 chats.insert(updated, at: 0)
             } else {
                 let mappedName = contacts.first(where: { $0.wx_id == roomId })?.remark ?? "新会话"
-                let newChat = ChatConversation(title: roomId, nickname: roomId.hasSuffix("@chatroom") ? "微信群聊" : mappedName, last_message: msg.text, last_time: msg.timestamp, unread_count: 1)
+                let newChat = ChatConversation(title: roomId, nickname: roomId.hasSuffix("@chatroom") ? "微信群聊" : mappedName, last_message: msg.content, last_time: msg.timestamp, unread_count: 1)
                 chats.insert(newChat, at: 0)
             }
         }
     }
     
-    // 供外部调用（如发送消息时本地先画气泡）
     func handleIncomingMessage(_ msg: Message) {
         let roomId = msg.isFromMe ? msg.receiver : msg.sender
         if messages[roomId] == nil { messages[roomId] = [] }
@@ -173,14 +192,14 @@ class AppSession: ObservableObject {
         
         if let idx = chats.firstIndex(where: { $0.title == roomId }) {
             var updated = chats[idx]
-            updated.last_message = msg.text
+            updated.last_message = msg.content
             updated.last_time = msg.timestamp
             if selectedChatID != roomId { updated.unread_count += 1 }
             chats.remove(at: idx)
             chats.insert(updated, at: 0)
         } else {
             let mappedName = contacts.first(where: { $0.wx_id == roomId })?.remark ?? "新会话"
-            let newChat = ChatConversation(title: roomId, nickname: roomId.hasSuffix("@chatroom") ? "微信群聊" : mappedName, last_message: msg.text, last_time: msg.timestamp, unread_count: 1)
+            let newChat = ChatConversation(title: roomId, nickname: roomId.hasSuffix("@chatroom") ? "微信群聊" : mappedName, last_message: msg.content, last_time: msg.timestamp, unread_count: 1)
             chats.insert(newChat, at: 0)
         }
     }

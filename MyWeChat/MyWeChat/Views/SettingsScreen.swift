@@ -72,22 +72,13 @@ struct SettingsScreen: View {
                     .disabled(isSaving)
                 }
 
-                Section {
+                Section("连接状态") {
                     HStack {
-                        Image(systemName: session.ws.isConnected ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .foregroundColor(session.ws.isConnected ? .green : .red)
-                        Text(session.ws.isConnected ? "已连接" : "未连接")
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        if let status = session.ws.reconnectStatus {
-                            Text(status)
-                                .font(.caption)
-                                .foregroundColor(.orange)
-                                .lineLimit(1)
-                        }
+                        Image(systemName: session.isConnected ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundColor(session.isConnected ? .green : .red)
+                        Text(session.isConnected ? "已连接" : "未连接 (尝试重连中...)")
+                            .foregroundColor(session.isConnected ? .primary : .red)
                     }
-                } header: {
-                    Text("连接状态")
                 }
             }
             .navigationTitle("设置")

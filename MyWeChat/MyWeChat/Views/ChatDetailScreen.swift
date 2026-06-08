@@ -23,7 +23,7 @@ struct ChatDetailScreen: View {
                                 if msg.isFromMe {
                                     Spacer()
                                     // 我发的绿色气泡
-                                    Text(msg.text ?? "")
+                                    Text(msg.content ?? "")
                                         .font(.system(size: 16))
                                         .padding(.horizontal, 14)
                                         .padding(.vertical, 10)
@@ -53,7 +53,7 @@ struct ChatDetailScreen: View {
                                         }
                                         
                                         // 对方的白色气泡
-                                        Text(msg.text ?? "")
+                                        Text(msg.content ?? "")
                                             .font(.system(size: 16))
                                             .padding(.horizontal, 14)
                                             .padding(.vertical, 10)
@@ -121,7 +121,7 @@ struct ChatDetailScreen: View {
             id: UUID().uuidString,
             sender: "2",          // 我的号
             receiver: chatTitle,  // 好友号或群号
-            text: text,
+            content: text,
             msg_type: "text",
             timestamp: "\(Int(Date().timeIntervalSince1970))",
             account_id: "2"
