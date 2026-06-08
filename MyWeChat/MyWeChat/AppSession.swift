@@ -161,14 +161,45 @@ final class AppSession: ObservableObject {
             mediaURL: mediaURL?.absoluteString
         )
 
-        do {
-            let sent = try await api.sendMessage(request)
+        // 优先通过 WebSocket 发送（实时性更好）
+        if ws.isConnected {
+            let payload: [String: Any] = [
+                "type": "message",
+                "sender": selectedAccountID,
+                "receiver": selectedChatID,
+                "content": text,
+                "msg_type": type.rawValue,
+                "media_url": mediaURL?.absoluteString ?? "",
+                "account_id": selectedAccountID
+            ]
+            ws.send(payload)
+
+            // 本地立即显示发送的消息
+            let localMsg = ChatMessage(
+                id: UUID().uuidString,
+                chatID: selectedChatID,
+                senderID: selectedAccountID,
+                isFromMe: true,
+                type: type,
+                text: text,
+                mediaURLString: mediaURL?.absoluteString,
+                createdAt: .now
+            )
             var current = messages[selectedChatID, default: []]
-            current.append(sent)
+            current.append(localMsg)
             messages[selectedChatID] = current
             storage.saveMessages(messages)
-        } catch {
-            lastError = error.localizedDescription
+        } else {
+            // WebSocket 未连接，走 REST API
+            do {
+                let sent = try await api.sendMessage(request)
+                var current = messages[selectedChatID, default: []]
+                current.append(sent)
+                messages[selectedChatID] = current
+                storage.saveMessages(messages)
+            } catch {
+                lastError = error.localizedDescription
+            }
         }
     }
 

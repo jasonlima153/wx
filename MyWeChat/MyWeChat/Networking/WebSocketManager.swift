@@ -182,6 +182,18 @@ final class WebSocketManager: ObservableObject {
         }
     }
 
+    // MARK: - 发送消息
+
+    func send(_ dict: [String: Any]) {
+        guard isConnected, let data = try? JSONSerialization.data(withJSONObject: dict),
+              let str = String(data: data, encoding: .utf8) else { return }
+        webSocketTask?.send(.string(str)) { error in
+            if let error = error {
+                print("WebSocket 发送失败: \(error)")
+            }
+        }
+    }
+
     // MARK: - 断开
 
     private func silentDisconnect() {

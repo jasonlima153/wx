@@ -9,9 +9,12 @@ struct ChatDetailScreen: View {
     @State private var selectedMedia: MediaSelection?
     @StateObject private var recorder = AudioRecorder()
 
+    private var activeChatID: String {
+        chatID.isEmpty ? session.selectedChatID : chatID
+    }
+
     private var currentMessages: [ChatMessage] {
-        let cid = chatID.isEmpty ? session.selectedChatID : chatID
-        return session.messages[cid, default: []]
+        return session.messages[activeChatID, default: []]
     }
 
     var body: some View {
@@ -27,7 +30,7 @@ struct ChatDetailScreen: View {
                     .padding(.vertical, 12)
                     .padding(.horizontal, 12)
                 }
-                .onChange(of: currentMessages.count) { _ in
+                .onChange(of: session.messages[activeChatID]?.count ?? 0) { _ in
                     if let last = currentMessages.last {
                         withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
                     }

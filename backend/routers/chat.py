@@ -137,7 +137,7 @@ async def send_message(request: dict):
     conn.commit()
     conn.close()
 
-    # 广播给所有 WebSocket 客户端
+    # 广播给所有 WebSocket 客户端（包括发送者）
     await manager.broadcast({
         "type": "new_message",
         "message_id": msg_id,
@@ -236,7 +236,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     conn.commit()
                     conn.close()
 
-                    # 广播
+                    # 广播给所有客户端（包括发送者，前端通过 isFromMe 判断显示方向）
                     await manager.broadcast({
                         "type": "new_message",
                         "message_id": msg_id,
@@ -250,7 +250,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         "voice_duration": voice_duration,
                         "timestamp": timestamp,
                         "account_id": account_id
-                    }, exclude=client_id)
+                    })
 
                 elif msg_type == "ping":
                     await websocket.send_json({"type": "pong"})
