@@ -122,10 +122,37 @@ final class AppSession: ObservableObject {
         switch event.kind {
         case .message:
             guard let msg = event.message else { return }
-            var current = messages[msg.chatID, default: []]
-            current.append(msg)
-            messages[msg.chatID] = current
+
+            // 1. 确定这条消息属于哪个聊天框 (对方是谁)
+            let targetID = msg.isFromMe ? msg.receiver : msg.sender
+
+            // 2. 实时更新聊天详情记录（防双重气泡）
+            var current = messages[targetID, default: []]
+            if !current.contains(where: { $0.id == msg.id }) {
+                current.append(msg)
+            }
+            messages[targetID] = current
             storage.saveMessages(messages)
+
+            // 3. 核心：自动联动外面的"会话列表"，实现微信一样的秒刷新
+            if let idx = chats.firstIndex(where: { $0.title == targetID }) {
+                var updatedChat = chats[idx]
+                updatedChat.last_message = msg.text ?? "[图片/语音]"
+                updatedChat.last_time = msg.timestamp
+
+                // 如果当前没在这个聊天页面里，未读数+1
+                if selectedChatID != targetID {
+                    updatedChat.unread_count = (updatedChat.unread_count ?? 0) + 1
+                }
+
+                // 把它顶到列表最上面
+                chats.remove(at: idx)
+                chats.insert(updatedChat, at: 0)
+                storage.saveChats(chats)
+            } else {
+                // 如果是全新的人发来消息，自动向服务器拉取一次列表
+                Task { await loadRealData() }
+            }
 
         case .chatList:
             if let chats = event.chats {

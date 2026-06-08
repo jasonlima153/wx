@@ -15,7 +15,7 @@ struct RootView: View {
                 .tag(TabItem.chats)
 
             AccountScreen()
-                .tabItem { Label("账号", systemImage: "person.2") }
+                .tabItem { Label("通讯录", systemImage: "person.crop.circle") }
                 .tag(TabItem.accounts)
 
             ScheduleListScreen()
