@@ -33,8 +33,8 @@ struct ChatListScreen: View {
                                     .lineLimit(1)
                             }
                             Spacer()
-                            if chat.unread_count > 0 {
-                                Text("\(chat.unread_count)")
+                            if let unread = chat.unread_count, unread > 0 {
+                                Text("\(unread)")
                                     .font(.caption.bold())
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
