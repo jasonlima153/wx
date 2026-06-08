@@ -177,13 +177,17 @@ final class AppSession: ObservableObject {
             // 本地立即显示发送的消息
             let localMsg = ChatMessage(
                 id: UUID().uuidString,
-                chatID: selectedChatID,
-                senderID: selectedAccountID,
-                isFromMe: true,
-                type: type,
-                text: text,
-                mediaURLString: mediaURL?.absoluteString,
-                createdAt: .now
+                sender: selectedAccountID,
+                receiver: selectedChatID,
+                content: text,
+                msg_type: type.rawValue,
+                media_url: mediaURL?.absoluteString,
+                file_name: nil,
+                file_size: nil,
+                voice_duration: nil,
+                timestamp: ISO8601DateFormatter().string(from: .now),
+                account_id: selectedAccountID,
+                is_read: 1
             )
             var current = messages[selectedChatID, default: []]
             current.append(localMsg)

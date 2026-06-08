@@ -18,7 +18,7 @@ final class APIClient {
         return try JSONDecoder().decode(T.self, from: data)
     }
 
-    // MARK: - Messages
+    // MARK: - Messages (REST fallback when WS disconnected)
 
     func sendMessage(_ req: SendMessageRequest) async throws -> ChatMessage {
         let payload: [String: Any] = [
@@ -34,15 +34,21 @@ final class APIClient {
         let resp: Resp = try await request("/api/send", method: "POST", body: body)
         return ChatMessage(
             id: resp.message_id,
-            chatID: req.chatID,
-            senderID: req.accountID,
-            isFromMe: true,
-            type: req.type,
-            text: req.type == .text ? req.text : (req.text.isEmpty ? nil : req.text),
-            mediaURLString: req.mediaURL,
-            createdAt: .now
+            sender: req.accountID,
+            receiver: req.chatID,
+            content: req.type == .text ? req.text : (req.text.isEmpty ? nil : req.text),
+            msg_type: req.type.rawValue,
+            media_url: req.mediaURL,
+            file_name: nil,
+            file_size: nil,
+            voice_duration: nil,
+            timestamp: ISO8601DateFormatter().string(from: .now),
+            account_id: req.accountID,
+            is_read: 1
         )
     }
+
+    // MARK: - Conversations
 
     func fetchConversations(accountID: String = "") async throws -> [Chat] {
         let path = accountID.isEmpty ? "/api/conversations" : "/api/conversations?account_id=\(accountID)"
@@ -50,29 +56,7 @@ final class APIClient {
     }
 
     func fetchMessages(for chatID: String, limit: Int = 50) async throws -> [ChatMessage] {
-        struct MsgResp: Decodable {
-            let id: String
-            let sender: String
-            let receiver: String
-            let content: String
-            let msg_type: String
-            let media_url: String?
-            let timestamp: String
-            let account_id: String?
-        }
-        let msgs: [MsgResp] = try await request("/api/conversations/\(chatID)/messages?limit=\(limit)")
-        return msgs.map {
-            ChatMessage(
-                id: $0.id,
-                chatID: $0.receiver,
-                senderID: $0.sender,
-                isFromMe: $0.sender == (UserDefaults.standard.string(forKey: "app.selectedAccount") ?? ""),
-                type: ChatMessage.MessageType(rawValue: $0.msg_type) ?? .text,
-                text: $0.content,
-                mediaURLString: $0.media_url,
-                createdAt: ISO8601DateFormatter().date(from: $0.timestamp) ?? .now
-            )
-        }
+        return try await request("/api/conversations/\(chatID)/messages?limit=\(limit)")
     }
 
     // MARK: - Upload
@@ -113,41 +97,13 @@ final class APIClient {
     // MARK: - Accounts
 
     func fetchAccounts() async throws -> [Account] {
-        struct AccResp: Decodable {
-            let id: String
-            let nickname: String
-            let is_active: Int
-        }
-        let accs: [AccResp] = try await request("/api/accounts")
-        return accs.map {
-            Account(id: $0.id, nickname: $0.nickname, status: $0.is_active == 1 ? .online : .offline)
-        }
+        return try await request("/api/accounts")
     }
 
     // MARK: - Scheduled Tasks
 
     func fetchScheduledTasks() async throws -> [ScheduleTask] {
-        struct TaskResp: Decodable {
-            let id: String
-            let name: String
-            let message_content: String
-            let status: String
-            let send_time: String
-            let repeat_interval: Int
-            let repeat_count: Int
-        }
-        let tasks: [TaskResp] = try await request("/api/scheduled_tasks")
-        return tasks.map {
-            ScheduleTask(
-                id: $0.id,
-                title: $0.name,
-                summary: $0.message_content,
-                enabled: $0.status != "paused",
-                sendAt: ISO8601DateFormatter().date(from: $0.send_time) ?? .now,
-                repeatInterval: TimeInterval($0.repeat_interval),
-                repeatCount: $0.repeat_count
-            )
-        }
+        return try await request("/api/scheduled_tasks")
     }
 
     func createSchedule(_ draft: ScheduleTaskDraft) async throws -> ScheduleTask {
@@ -167,12 +123,19 @@ final class APIClient {
         let resp: Resp = try await request("/api/scheduled_tasks", method: "POST", body: body)
         return ScheduleTask(
             id: resp.id,
-            title: draft.title,
-            summary: "\(draft.messageType.rawValue) / \(draft.repeatCount)次 / 间隔\(Int(draft.repeatInterval))秒",
-            enabled: true,
-            sendAt: draft.sendAt,
-            repeatInterval: draft.repeatInterval,
-            repeatCount: draft.repeatCount
+            name: draft.title,
+            message_content: draft.content,
+            msg_type: draft.messageType.rawValue,
+            media_url: draft.mediaURL,
+            target_accounts: "[]",
+            targets: "[]",
+            send_time: ISO8601DateFormatter().string(from: draft.sendAt),
+            repeat_interval: Int(draft.repeatInterval),
+            repeat_count: draft.repeatCount,
+            sent_count: 0,
+            status: "pending",
+            created_at: ISO8601DateFormatter().string(from: .now),
+            next_run: resp.next_run
         )
     }
 
@@ -180,7 +143,22 @@ final class APIClient {
         let path = enabled ? "/api/scheduled_tasks/\(id)/resume" : "/api/scheduled_tasks/\(id)/pause"
         struct Resp: Decodable { let status: String }
         let _: Resp = try await request(path, method: "PUT")
-        return ScheduleTask(id: id, title: "任务", summary: "已更新", enabled: enabled, sendAt: .now, repeatInterval: 60, repeatCount: 1)
+        return ScheduleTask(
+            id: id,
+            name: "任务",
+            message_content: "已更新",
+            msg_type: "text",
+            media_url: nil,
+            target_accounts: "[]",
+            targets: "[]",
+            send_time: ISO8601DateFormatter().string(from: .now),
+            repeat_interval: 60,
+            repeat_count: 1,
+            sent_count: 0,
+            status: enabled ? "running" : "paused",
+            created_at: ISO8601DateFormatter().string(from: .now),
+            next_run: nil
+        )
     }
 
     func deleteSchedule(id: String) async throws {

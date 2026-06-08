@@ -76,13 +76,17 @@ final class WebSocketManager: ObservableObject {
                         if kind == "new_message" {
                             let msg = ChatMessage(
                                 id: json["message_id"] as? String ?? UUID().uuidString,
-                                chatID: json["receiver"] as? String ?? "",
-                                senderID: json["sender"] as? String ?? "",
-                                isFromMe: false,
-                                type: ChatMessage.MessageType(rawValue: json["msg_type"] as? String ?? "text") ?? .text,
-                                text: json["content"] as? String,
-                                mediaURLString: json["media_url"] as? String,
-                                createdAt: .now
+                                sender: json["sender"] as? String ?? "",
+                                receiver: json["receiver"] as? String ?? "",
+                                content: json["content"] as? String,
+                                msg_type: json["msg_type"] as? String ?? "text",
+                                media_url: json["media_url"] as? String,
+                                file_name: json["file_name"] as? String,
+                                file_size: json["file_size"] as? Int,
+                                voice_duration: json["voice_duration"] as? Double,
+                                timestamp: json["timestamp"] as? String ?? ISO8601DateFormatter().string(from: .now),
+                                account_id: json["account_id"] as? String,
+                                is_read: 0
                             )
                             let event = WSInboundEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
                             DispatchQueue.main.async { onMessage(event) }
