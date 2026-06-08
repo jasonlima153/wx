@@ -23,23 +23,19 @@ final class APIClient {
             let result = try JSONDecoder().decode(T.self, from: data)
             print("✅ [API] 解析成功: \(T.self)")
             return result
-        } catch let DecodingError.dataCorrupted(context) {
-            print("❌ [API] 数据损坏: \(context)")
-            throw context.underlyingError ?? URLError(.cannotDecodeContentData)
         } catch let DecodingError.keyNotFound(key, context) {
-            print("❌ [API] 找不到字段 '\(key.stringValue)': \(context.debugDescription)")
-            throw URLError(.cannotDecodeContentData)
-        } catch let DecodingError.valueNotFound(value, context) {
-            print("❌ [API] 找不到值 '\(value)': \(context.debugDescription)")
-            throw URLError(.cannotDecodeContentData)
+            let field = context.codingPath.map { $0.stringValue }.joined(separator: ".")
+            let msg = "找不到字段 '\(key.stringValue)' (在 \(field) 中)"
+            print("❌ [API] \(msg)")
+            throw NSError(domain: "JSON解析", code: -1016, userInfo: [NSLocalizedDescriptionKey: msg])
         } catch let DecodingError.typeMismatch(type, context) {
-            print("❌ [API] 类型不匹配 '\(type)': \(context.debugDescription)")
-            throw URLError(.cannotDecodeContentData)
+            let field = context.codingPath.last?.stringValue ?? "未知"
+            let msg = "字段 '\(field)' 类型不对 (应该改成 \(type))"
+            print("❌ [API] \(msg)")
+            throw NSError(domain: "JSON解析", code: -1016, userInfo: [NSLocalizedDescriptionKey: msg])
         } catch {
-            let bodyStr = String(data: data, encoding: .utf8) ?? "<binary>"
             print("❌ [API] 其他解析错误: \(error)")
-            print("❌ [API] 原始响应: \(bodyStr)")
-            throw error
+            throw NSError(domain: "JSON解析", code: -1016, userInfo: [NSLocalizedDescriptionKey: "数据格式不匹配"])
         }
     }
 

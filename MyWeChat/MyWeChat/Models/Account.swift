@@ -1,8 +1,7 @@
 import Foundation
 
-// 与后端数据库 accounts 表完全对齐
-// id: TEXT, nickname: TEXT, wx_id: TEXT, phone: TEXT, avatar: TEXT, is_active: INTEGER, last_login: TEXT, server_url: TEXT
 struct Account: Identifiable, Codable, Hashable {
+    // 这里的字段必须和 SQLite 数据库完全一样
     var id: String
     var nickname: String
     var wx_id: String?
@@ -12,12 +11,12 @@ struct Account: Identifiable, Codable, Hashable {
     var last_login: String?
     var server_url: String?
 
-    // 兼容旧代码
+    // 兼容你旧 UI 代码的快捷属性
     var name: String { nickname }
     var status: String? { (is_active == 1) ? "在线" : "离线" }
 
+    // 占位数据防崩
     static let mockData: [Account] = [
-        .init(id: "1", nickname: "测试账号1", wx_id: nil, phone: nil, avatar: nil, is_active: 1, last_login: nil, server_url: nil),
-        .init(id: "2", nickname: "测试账号2", wx_id: nil, phone: nil, avatar: nil, is_active: 0, last_login: nil, server_url: nil)
+        .init(id: "1", nickname: "账号1", is_active: 1)
     ]
 }

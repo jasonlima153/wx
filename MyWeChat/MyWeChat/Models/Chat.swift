@@ -1,24 +1,23 @@
 import Foundation
 
-// 与后端数据库 conversations 表完全对齐
-// id: TEXT, name: TEXT, avatar: TEXT, last_message: TEXT, last_time: TEXT, unread_count: INTEGER, account_id: TEXT, is_group: INTEGER, is_pinned: INTEGER
 struct Chat: Identifiable, Codable, Hashable {
+    // 这里的字段必须和 SQLite 的 conversations 表完全一样
     var id: String
     var name: String
     var avatar: String?
     var last_message: String?
     var last_time: String?
-    var unread_count: Int
+    var unread_count: Int?  // 改成可选 Int? 防止后端传 null 崩溃
     var account_id: String?
     var is_group: Int?
     var is_pinned: Int?
 
-    // 兼容旧代码
+    // 兼容旧 UI 的计算属性
     var title: String { name }
-    var subtitle: String { last_message ?? "" }
+    var subtitle: String { last_message ?? "暂无消息" }
 
+    // 占位数据
     static let mockData: [Chat] = [
-        .init(id: "1", name: "产品群", avatar: nil, last_message: "最新消息预览", last_time: nil, unread_count: 2, account_id: nil, is_group: 1, is_pinned: 0),
-        .init(id: "2", name: "张三", avatar: nil, last_message: "昨天 21:08", last_time: nil, unread_count: 0, account_id: nil, is_group: 0, is_pinned: 0)
+        .init(id: "1", name: "产品群", unread_count: 2)
     ]
 }
