@@ -8,8 +8,8 @@ final class AppSession: ObservableObject {
     @Published var messages: [String: [ChatMessage]] = ChatMessage.mockDataByChatId
     @Published var schedules: [ScheduleTask] = ScheduleTask.mockData
     @Published var settings = AppSettings()
-    @Published var selectedAccountID: String = Account.mockData.first?.id ?? ""
-    @Published var selectedChatID: String = Chat.mockData.first?.id ?? ""
+    @Published var selectedAccountID: String = ""
+    @Published var selectedChatID: String = ""
     @Published var isConnected: Bool = false
     @Published var lastError: String?
 
@@ -182,12 +182,7 @@ final class AppSession: ObservableObject {
                 content: text,
                 msg_type: type.rawValue,
                 media_url: mediaURL?.absoluteString,
-                file_name: nil,
-                file_size: nil,
-                voice_duration: nil,
-                timestamp: ISO8601DateFormatter().string(from: .now),
-                account_id: selectedAccountID,
-                is_read: 1
+                timestamp: ISO8601DateFormatter().string(from: .now)
             )
             var current = messages[selectedChatID, default: []]
             current.append(localMsg)

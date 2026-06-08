@@ -64,12 +64,7 @@ final class APIClient {
             content: req.type == .text ? req.text : (req.text.isEmpty ? nil : req.text),
             msg_type: req.type.rawValue,
             media_url: req.mediaURL,
-            file_name: nil,
-            file_size: nil,
-            voice_duration: nil,
-            timestamp: ISO8601DateFormatter().string(from: .now),
-            account_id: req.accountID,
-            is_read: 1
+            timestamp: ISO8601DateFormatter().string(from: .now)
         )
     }
 
