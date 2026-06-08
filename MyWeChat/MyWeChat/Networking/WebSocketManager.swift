@@ -70,41 +70,48 @@ final class WebSocketManager: ObservableObject {
     private func handleMessage(_ message: URLSessionWebSocketTask.Message, onMessage: @escaping (WSInboundEvent) -> Void) {
         switch message {
         case .string(let text):
-            if let data = text.data(using: .utf8) {
-                do {
-                    let decoder = JSONDecoder()
-                    decoder.dateDecodingStrategy = .iso8601
-                    let event = try decoder.decode(WSInboundEvent.self, from: data)
-                    DispatchQueue.main.async { onMessage(event) }
-                } catch {
-                    // 尝试解析后端原始消息格式
-                    if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                        let kind = json["type"] as? String ?? ""
-                        if kind == "new_message" {
-                            let msg = ChatMessage(
-                                id: json["message_id"] as? String ?? UUID().uuidString,
-                                sender: json["sender"] as? String ?? "",
-                                receiver: json["receiver"] as? String ?? "",
-                                content: json["content"] as? String,
-                                msg_type: json["msg_type"] as? String ?? "text",
-                                media_url: json["media_url"] as? String,
-                                file_name: json["file_name"] as? String,
-                                file_size: json["file_size"] as? Int,
-                                voice_duration: json["voice_duration"] as? Double,
-                                timestamp: json["timestamp"] as? String ?? ISO8601DateFormatter().string(from: .now),
-                                account_id: json["account_id"] as? String,
-                                is_read: 0
-                            )
-                            let event = WSInboundEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
-                            DispatchQueue.main.async { onMessage(event) }
-                        } else if kind == "pong" {
-                            // 心跳回复，忽略
-                        }
-                    }
-                }
+            print("📥 [WS] 收到文本: \(text.prefix(200))")
+            guard let data = text.data(using: .utf8) else { return }
+
+            // 先尝试解析为 JSON 对象
+            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                // 不是 JSON，当作纯文本消息处理
+                print("📥 [WS] 收到纯文本消息")
+                let msg = ChatMessage(
+                    id: UUID().uuidString,
+                    sender: "server",
+                    receiver: "",
+                    content: text,
+                    msg_type: "text",
+                    media_url: nil,
+                    timestamp: ISO8601DateFormatter().string(from: .now)
+                )
+                let event = WSInboundEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
+                DispatchQueue.main.async { onMessage(event) }
+                return
             }
+
+            let kind = json["type"] as? String ?? ""
+            if kind == "new_message" || kind == "message" {
+                let msg = ChatMessage(
+                    id: json["message_id"] as? String ?? UUID().uuidString,
+                    sender: json["sender"] as? String ?? "",
+                    receiver: json["receiver"] as? String ?? "",
+                    content: json["content"] as? String,
+                    msg_type: json["msg_type"] as? String ?? "text",
+                    media_url: json["media_url"] as? String,
+                    timestamp: json["timestamp"] as? String ?? ISO8601DateFormatter().string(from: .now)
+                )
+                let event = WSInboundEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
+                DispatchQueue.main.async { onMessage(event) }
+            } else if kind == "pong" {
+                print("💓 [WS] 收到心跳 pong")
+            } else {
+                print("📥 [WS] 收到其他类型消息: \(kind)")
+            }
+
         case .data:
-            break
+            print("📥 [WS] 收到二进制数据")
         @unknown default:
             break
         }

@@ -1,7 +1,6 @@
 import Foundation
 
-// 与后端数据库 scheduled_tasks 表完全对齐
-// id: TEXT, name: TEXT, message_content: TEXT, msg_type: TEXT, media_url: TEXT, target_accounts: TEXT, targets: TEXT, send_time: TEXT, repeat_interval: INTEGER, repeat_count: INTEGER, sent_count: INTEGER, status: TEXT, created_at: TEXT, next_run: TEXT
+// 适配实际后端
 struct ScheduleTask: Identifiable, Codable, Hashable {
     var id: String
     var name: String
@@ -18,7 +17,7 @@ struct ScheduleTask: Identifiable, Codable, Hashable {
     var created_at: String
     var next_run: String?
 
-    // 兼容旧代码的计算属性
+    // 兼容旧代码
     var title: String { name }
     var summary: String { message_content }
     var enabled: Bool { status != "paused" && status != "completed" }

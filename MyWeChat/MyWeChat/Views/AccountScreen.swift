@@ -15,7 +15,7 @@ struct AccountScreen: View {
                             AvatarCircle(text: account.nickname)
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(account.nickname).font(.headline)
-                                Text(account.status.rawValue)
+                                Text(account.status ?? "")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
