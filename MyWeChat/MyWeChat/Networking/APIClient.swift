@@ -5,17 +5,42 @@ final class APIClient {
 
     private func request<T: Decodable>(_ path: String, method: String = "GET", body: Data? = nil) async throws -> T {
         guard let url = URL(string: path, relativeTo: baseURL) else {
+            print("❌ [API] 无效 URL: \(path)")
             throw URLError(.badURL)
         }
         var req = URLRequest(url: url)
         req.httpMethod = method
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = body
+        print("📤 [API] \(method) \(url.absoluteString)")
         let (data, response) = try await URLSession.shared.data(for: req)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            let bodyStr = String(data: data, encoding: .utf8) ?? "<binary>"
+            print("❌ [API] HTTP 错误: \(String(describing: (response as? HTTPURLResponse)?.statusCode)) 响应: \(bodyStr)")
             throw URLError(.badServerResponse)
         }
-        return try JSONDecoder().decode(T.self, from: data)
+        do {
+            let result = try JSONDecoder().decode(T.self, from: data)
+            print("✅ [API] 解析成功: \(T.self)")
+            return result
+        } catch let DecodingError.dataCorrupted(context) {
+            print("❌ [API] 数据损坏: \(context)")
+            throw context.underlyingError ?? URLError(.cannotDecodeContentData)
+        } catch let DecodingError.keyNotFound(key, context) {
+            print("❌ [API] 找不到字段 '\(key.stringValue)': \(context.debugDescription)")
+            throw URLError(.cannotDecodeContentData)
+        } catch let DecodingError.valueNotFound(value, context) {
+            print("❌ [API] 找不到值 '\(value)': \(context.debugDescription)")
+            throw URLError(.cannotDecodeContentData)
+        } catch let DecodingError.typeMismatch(type, context) {
+            print("❌ [API] 类型不匹配 '\(type)': \(context.debugDescription)")
+            throw URLError(.cannotDecodeContentData)
+        } catch {
+            let bodyStr = String(data: data, encoding: .utf8) ?? "<binary>"
+            print("❌ [API] 其他解析错误: \(error)")
+            print("❌ [API] 原始响应: \(bodyStr)")
+            throw error
+        }
     }
 
     // MARK: - Messages (REST fallback when WS disconnected)

@@ -24,10 +24,13 @@ final class WebSocketManager: ObservableObject {
         onStatusHandler = onStatus
         reconnectAttempts = 0
 
+        print("🔗 [WS] 正在尝试连接: \(urlString)")
+
         // 先断开旧连接
         silentDisconnect()
 
         guard let url = URL(string: urlString) else {
+            print("❌ [WS] 无效 URL: \(urlString)")
             onStatus(.failure(URLError(.badURL)))
             return
         }
@@ -41,12 +44,15 @@ final class WebSocketManager: ObservableObject {
         webSocketTask?.receive { [weak self] result in
             switch result {
             case .success(let message):
+                print("✅ [WS] 收到消息")
                 self?.isConnected = true
                 self?.reconnectAttempts = 0
                 self?.reconnectStatus = nil
                 self?.handleMessage(message, onMessage: onMessage)
                 self?.receiveNext(onMessage: onMessage)
             case .failure(let error):
+                print("❌ [WS] 接收失败或断开: \(error.localizedDescription)")
+                print("❌ [WS] 详细错误: \(error)")
                 self?.isConnected = false
                 self?.scheduleReconnect()
             }
@@ -54,6 +60,7 @@ final class WebSocketManager: ObservableObject {
 
         webSocketTask?.resume()
         isConnected = true
+        print("✅ [WS] 连接已建立")
         DispatchQueue.main.async { onStatus(.success(true)) }
 
         // 启动心跳
@@ -107,12 +114,15 @@ final class WebSocketManager: ObservableObject {
         webSocketTask?.receive { [weak self] result in
             switch result {
             case .success(let message):
+                print("✅ [WS] 收到消息")
                 self?.isConnected = true
                 self?.reconnectAttempts = 0
                 self?.reconnectStatus = nil
                 self?.handleMessage(message, onMessage: onMessage)
                 self?.receiveNext(onMessage: onMessage)
-            case .failure:
+            case .failure(let error):
+                print("❌ [WS] 接收失败或断开: \(error.localizedDescription)")
+                print("❌ [WS] 详细错误: \(error)")
                 self?.isConnected = false
                 self?.scheduleReconnect()
             }
@@ -142,6 +152,8 @@ final class WebSocketManager: ObservableObject {
         guard let onMsg = onMessageHandler, let onSt = onStatusHandler else { return }
         silentDisconnect()
 
+        print("🔄 [WS] 尝试重连: \(currentURLString) (第 \(reconnectAttempts) 次)")
+
         guard let url = URL(string: currentURLString) else { return }
 
         var request = URLRequest(url: url)
@@ -153,13 +165,15 @@ final class WebSocketManager: ObservableObject {
         webSocketTask?.receive { [weak self] result in
             switch result {
             case .success(let message):
+                print("✅ [WS] 重连成功，收到消息")
                 self?.isConnected = true
                 self?.reconnectAttempts = 0
                 self?.reconnectStatus = nil
                 DispatchQueue.main.async { onSt(.success(true)) }
                 self?.handleMessage(message, onMessage: onMsg)
                 self?.receiveNext(onMessage: onMsg)
-            case .failure:
+            case .failure(let error):
+                print("❌ [WS] 重连失败: \(error.localizedDescription)")
                 self?.isConnected = false
                 self?.scheduleReconnect()
             }
@@ -190,10 +204,16 @@ final class WebSocketManager: ObservableObject {
 
     func send(_ dict: [String: Any]) {
         guard isConnected, let data = try? JSONSerialization.data(withJSONObject: dict),
-              let str = String(data: data, encoding: .utf8) else { return }
+              let str = String(data: data, encoding: .utf8) else {
+            print("❌ [WS] 发送失败：未连接或序列化失败")
+            return
+        }
+        print("📤 [WS] 发送: \(str)")
         webSocketTask?.send(.string(str)) { error in
             if let error = error {
-                print("WebSocket 发送失败: \(error)")
+                print("❌ [WS] 发送失败: \(error)")
+            } else {
+                print("✅ [WS] 发送成功")
             }
         }
     }
