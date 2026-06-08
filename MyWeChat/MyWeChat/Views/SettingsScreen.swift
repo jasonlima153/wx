@@ -21,19 +21,12 @@ struct SettingsScreen: View {
                         Text("暂无微信账号").foregroundStyle(.secondary)
                     } else {
                         Picker("选择微信", selection: $session.selectedAccountID) {
-                            ForEach(session.accounts) { account in
+                            ForEach(session.accounts, id: \.id) { account in
                                 Text(account.nickname).tag(account.id)
                             }
                         }
                         .onChange(of: session.selectedAccountID) { _ in
                             session.persistAll()
-                            // 切换账号后自动刷新外面的会话列表
-                            Task {
-                                do {
-                                    let updated = try await session.api.fetchConversations(accountID: session.selectedAccountID)
-                                    session.chats = updated
-                                } catch {}
-                            }
                         }
                     }
                 }
@@ -104,10 +97,11 @@ struct SettingsScreen: View {
                 Text(alertMessage)
             }
             .onAppear {
-                serverBaseURL = session.settings.serverBaseURL
-                websocketURL = session.settings.websocketURL
-                authToken = session.settings.authToken
-                appearanceIndex = session.settings.appearance.index
+                let s = session.settings
+                serverBaseURL = s.serverBaseURL
+                websocketURL = s.websocketURL
+                authToken = s.authToken
+                appearanceIndex = s.appearance.index
             }
         }
     }
@@ -142,10 +136,12 @@ struct SettingsScreen: View {
 
         // 校验通过，保存
         isSaving = true
-        session.settings.serverBaseURL = serverBaseURL
-        session.settings.websocketURL = websocketURL
-        session.settings.authToken = authToken
-        session.settings.appearance = appearanceIndex == 1 ? .light : (appearanceIndex == 2 ? .dark : .system)
+        var newSettings = session.settings
+        newSettings.serverBaseURL = serverBaseURL
+        newSettings.websocketURL = websocketURL
+        newSettings.authToken = authToken
+        newSettings.appearance = appearanceIndex == 1 ? .light : (appearanceIndex == 2 ? .dark : .system)
+        session.settings = newSettings
         session.persistAll()
 
         // 重新连接

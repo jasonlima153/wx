@@ -205,4 +205,51 @@ class AppSession: ObservableObject {
     
     // 持久化（占位）
     func persistAll() {}
+    
+    // ===== 兼容旧代码的属性 =====
+    
+    var settings: AppSettings {
+        get {
+            // 从 UserDefaults 读取
+            if let data = UserDefaults.standard.data(forKey: "app.settings"),
+               let s = try? JSONDecoder().decode(AppSettings.self, from: data) {
+                return s
+            }
+            return AppSettings()
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: "app.settings")
+            }
+        }
+    }
+    
+    var accounts: [Account] {
+        get {
+            if let data = UserDefaults.standard.data(forKey: "app.accounts"),
+               let a = try? JSONDecoder().decode([Account].self, from: data) {
+                return a
+            }
+            return Account.mockData
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: "app.accounts")
+            }
+        }
+    }
+    
+    let api = APIClient()
+    let ws = WebSocketManager()
+    let storage = StorageManager()
+    
+    func connect() {
+        connectWebSocket()
+    }
+    
+    func disconnect() {
+        webSocketTask?.cancel(with: .goingAway, reason: nil)
+        webSocketTask = nil
+        isConnected = false
+    }
 }
