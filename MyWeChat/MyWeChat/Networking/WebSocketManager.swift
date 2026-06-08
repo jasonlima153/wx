@@ -8,7 +8,7 @@ final class WebSocketManager: ObservableObject {
     private var reconnectTimer: Timer?
     private var currentURLString: String = ""
     private var currentToken: String = ""
-    private var onMessageHandler: ((WSInboundEvent) -> Void)?
+    private var onMessageHandler: ((WSMessageEvent) -> Void)?
     private var onStatusHandler: ((Result<Bool, Error>) -> Void)?
     private var reconnectAttempts: Int = 0
     private let maxReconnectAttempts: Int = 10
@@ -16,7 +16,7 @@ final class WebSocketManager: ObservableObject {
     @Published var isConnected = false
     @Published var reconnectStatus: String?
 
-    func connect(urlString: String, token: String, onStatus: @escaping (Result<Bool, Error>) -> Void, onMessage: @escaping (WSInboundEvent) -> Void) {
+    func connect(urlString: String, token: String, onStatus: @escaping (Result<Bool, Error>) -> Void, onMessage: @escaping (WSMessageEvent) -> Void) {
         // 保存回调以便重连时复用
         currentURLString = urlString
         currentToken = token
@@ -67,7 +67,7 @@ final class WebSocketManager: ObservableObject {
         startPingTimer()
     }
 
-    private func handleMessage(_ message: URLSessionWebSocketTask.Message, onMessage: @escaping (WSInboundEvent) -> Void) {
+    private func handleMessage(_ message: URLSessionWebSocketTask.Message, onMessage: @escaping (WSMessageEvent) -> Void) {
         switch message {
         case .string(let text):
             print("📥 [WS] 收到文本: \(text.prefix(200))")
@@ -86,7 +86,7 @@ final class WebSocketManager: ObservableObject {
                     media_url: nil,
                     timestamp: ISO8601DateFormatter().string(from: .now)
                 )
-                let event = WSInboundEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
+                let event = WSMessageEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
                 DispatchQueue.main.async { onMessage(event) }
                 return
             }
@@ -102,7 +102,7 @@ final class WebSocketManager: ObservableObject {
                     media_url: json["media_url"] as? String,
                     timestamp: json["timestamp"] as? String ?? ISO8601DateFormatter().string(from: .now)
                 )
-                let event = WSInboundEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
+                let event = WSMessageEvent(kind: .message, text: nil, message: msg, chats: nil, accounts: nil, schedules: nil)
                 DispatchQueue.main.async { onMessage(event) }
             } else if kind == "pong" {
                 print("💓 [WS] 收到心跳 pong")
@@ -117,7 +117,7 @@ final class WebSocketManager: ObservableObject {
         }
     }
 
-    private func receiveNext(onMessage: @escaping (WSInboundEvent) -> Void) {
+    private func receiveNext(onMessage: @escaping (WSMessageEvent) -> Void) {
         webSocketTask?.receive { [weak self] result in
             switch result {
             case .success(let message):

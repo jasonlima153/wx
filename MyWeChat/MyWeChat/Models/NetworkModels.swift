@@ -32,13 +32,3 @@ struct SendMessageResponse: Codable {
 }
 
 struct UploadResponse: Codable { let url: String }
-
-struct WSInboundEvent: Codable {
-    enum Kind: String, Codable { case message, chatList, accountList, scheduleList, status }
-    var kind: Kind
-    var text: String?
-    var message: ChatMessage?
-    var chats: [Chat]?
-    var accounts: [Account]?
-    var schedules: [ScheduleTask]?
-}
